@@ -663,23 +663,45 @@ a.menu__item:focus-visible::before {
   fill: #fcc103;
 }
 
-/* Медальон в цветах первого барабана: бумага в лучах, бледный узор, тёмно-синий обод, золотые лучи */
-.wheel__disc--medallion-drum {
+/* Медальон в цветах первого барабана: бумага в лучах, бледный узор, тёмно-синий обод, золотые лучи.
+   duo и pale — те же цвета, но без жёлтого */
+.wheel__disc--medallion-drum,
+.wheel__disc--medallion-duo,
+.wheel__disc--medallion-pale {
   background:
     repeating-conic-gradient(from 0deg, rgb(13 27 61 / 0.06) 0 6deg, transparent 6deg 12deg),
     #f4efe6;
 }
-.wheel__disc--medallion-drum .medallion__bg {
+.wheel__disc--medallion-drum .medallion__bg,
+.wheel__disc--medallion-duo .medallion__bg,
+.wheel__disc--medallion-pale .medallion__bg {
   fill: none;
 }
-.wheel__disc--medallion-drum .medallion__blue {
+.wheel__disc--medallion-drum .medallion__blue,
+.wheel__disc--medallion-duo .medallion__blue,
+.wheel__disc--medallion-pale .medallion__blue {
   fill: rgb(13 27 61 / 0.22);
 }
-.wheel__disc--medallion-drum .medallion__purple {
+.wheel__disc--medallion-drum .medallion__purple,
+.wheel__disc--medallion-duo .medallion__purple,
+.wheel__disc--medallion-pale .medallion__purple {
   fill: #0d1b3d;
 }
-.wheel__disc--medallion-drum .medallion__ring {
+.wheel__disc--medallion-drum .medallion__ring,
+.wheel__disc--medallion-duo .medallion__ring,
+.wheel__disc--medallion-pale .medallion__ring {
   stroke: #0d1b3d;
+}
+
+/* Два цвета: всё тёмно-синее по бумаге */
+.wheel__disc--medallion-duo .medallion__blue,
+.wheel__disc--medallion-duo .medallion__gold {
+  fill: #0d1b3d;
+}
+
+/* Без жёлтого: лучи такие же бледные, как узор */
+.wheel__disc--medallion-pale .medallion__gold {
+  fill: rgb(13 27 61 / 0.22);
 }
 .wheel__disc--medallion-drum .medallion__gold {
   fill: #f6c445;
