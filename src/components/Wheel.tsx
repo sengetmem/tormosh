@@ -17,15 +17,23 @@ type WheelProps = {
 }
 
 const VISIBLE = 2
-const STEP = 40 // градусов между значками на компьютере
-export const STEP_H = 25 // на телефоне: дуга пологая, во всю ширину экрана
+// Два варианта на выбор владельца (?yurt=items или ?yurt=poles в адресе):
+// items — значки раздвинуты по жердям: шаг 360°/число вещей, на каждой жерди своя вещь;
+// poles — значки как раньше (40° на компьютере, ~25° на телефоне), жердь под каждым значком
+const YURT_MODE = new URLSearchParams(window.location.search).get('yurt') === 'items' ? 'items' : 'poles'
+
+/** Градусов между значками (и между жердями юрты) */
+export const stepOf = (vertical: boolean) =>
+  YURT_MODE === 'items' ? 360 / slots.length : vertical ? 40 : 360 / 14
+/** Сколько значков от выбранного до края дуги на телефоне */
+export const EDGE_STEPS = YURT_MODE === 'items' ? 1 : 2
 const PAN_STEP = 90 // px протяжки на один шаг
 const FLING_SPEED = 900 // px/с рывка на одну вещь по инерции
 
 /** Барабан с медальонами, как в меню выбора персонажа Sonic Advance */
 export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelProps) {
   const place = (offset: number) => {
-    const a = (offset * (vertical ? STEP : STEP_H) * Math.PI) / 180
+    const a = (offset * stepOf(vertical) * Math.PI) / 180
     const near = Math.abs(offset)
     return {
       x: r * (vertical ? Math.cos(a) : Math.sin(a)),
@@ -68,14 +76,14 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
       onPan={onPan}
       onPanEnd={onPanEnd}
     >
-      {/* Купол юрты (жердей столько же, сколько вещей) крутится ровно как значки: тот же шаг и та же пружина */}
+      {/* Купол юрты крутится ровно как значки: тот же шаг и та же пружина, жерди — по шагу значков */}
       <motion.div
         className="wheel__disc"
         aria-hidden="true"
-        animate={{ rotate: -cursor * (vertical ? STEP : STEP_H) }}
+        animate={{ rotate: -cursor * stepOf(vertical) }}
         transition={{ type: 'spring', stiffness: 260, damping: 28 }}
       >
-        <YurtDome poles={slots.length} phase={vertical ? 0 : -90} />
+        <YurtDome poles={Math.round(360 / stepOf(vertical))} phase={vertical ? 0 : -90} />
         <OrnamentRing className="wheel__ring" />
       </motion.div>
       <div className="wheel__track" aria-hidden="true" />

@@ -4,7 +4,7 @@ import { Backdrop } from './components/Backdrop'
 import { ConfirmOverlay } from './components/ConfirmOverlay'
 import { Menu } from './components/Menu'
 import { Stage } from './components/Stage'
-import { STEP_H, Wheel } from './components/Wheel'
+import { EDGE_STEPS, stepOf, Wheel } from './components/Wheel'
 import { orderLink } from './config'
 import { LOCKED_ACCENT, slotAt, slots } from './data/products'
 import { useMediaQuery, useViewport } from './hooks/useMediaQuery'
@@ -38,10 +38,10 @@ export default function App() {
   const vertical = !useMediaQuery('(max-width: 860px)')
   const { w, h } = useViewport()
   // На компьютере круг подстраивается под окно. На телефоне радиус такой,
-  // чтобы крайние значки (±2 шага) вставали ровно у краёв экрана
+  // чтобы крайние значки (±EDGE_STEPS шагов) вставали ровно у краёв экрана
   const radius = vertical
     ? Math.round(Math.min(430, h * 0.47, w * 0.28))
-    : Math.round((w / 2 - MEDAL_H / 2 - 4) / Math.sin((2 * STEP_H * Math.PI) / 180))
+    : Math.round((w / 2 - MEDAL_H / 2 - 4) / Math.sin((EDGE_STEPS * stepOf(false) * Math.PI) / 180))
 
   const slot = slotAt(cursor)
   const product = slot.kind === 'product' ? slot.product : null
