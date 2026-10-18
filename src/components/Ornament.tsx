@@ -1,4 +1,4 @@
-import { ORNAMENT_H, ORNAMENT_PATH, ORNAMENT_W } from './ornamentPath'
+import { ORNAMENT_PATH, ORNAMENT_W } from './ornamentPath'
 
 // Кускар («бараний рог») — один из базовых мотивов башкирского орнамента.
 // Рисуем его линией, чтобы он красился через currentColor.
@@ -27,30 +27,51 @@ export function Kuskar({ size = 48, strokeWidth = 7, className }: KuskarProps) {
   )
 }
 
-/** Высота каймы на экране, px. Ширина повтора считается из пропорций узора */
-const BAND_H = 44
-
-/** Нижний край узора в исходнике: после переворота он встаёт вплотную к шапке, без зазора */
+/** Нижний край узора в исходнике — там сплошная лента каймы */
 const ORNAMENT_TOP = 489
 
-/** Кайма «волна с рогами» — красный узор без фона, свисает из-под шапки */
-export function OrnamentBand({ id, className = '' }: { id: string; className?: string }) {
-  const tileW = (ORNAMENT_W * BAND_H) / ORNAMENT_H
+/**
+ * Кайма «волна с рогами», согнутая в кольцо: каждую точку узора переводим в полярные координаты.
+ * Сплошная лента — по внешнему краю, завитки смотрят к центру. Координаты — в квадрате 1000×1000.
+ * @param depth толщина каймы в долях радиуса
+ */
+function ringPath(depth: number) {
+  const R = 500
+  const band = R * depth
+  const tileArc = (ORNAMENT_W * band) / ORNAMENT_TOP
+  const count = Math.round((2 * Math.PI * (R - band / 2)) / tileArc)
+  const tokens = ORNAMENT_PATH.match(/[A-Za-z]|-?\d*\.?\d+/g) ?? []
+  const parts: string[] = []
+  for (let i = 0; i < count; i++) {
+    let even = true
+    let x = 0
+    for (const t of tokens) {
+      if (/[A-Za-z]/.test(t)) {
+        parts.push(t)
+        continue
+      }
+      if (even) {
+        x = Number(t)
+      } else {
+        const angle = ((i + x / ORNAMENT_W) / count) * 2 * Math.PI
+        const rho = R - ((ORNAMENT_TOP - Number(t)) / ORNAMENT_TOP) * band
+        parts.push(`${(R + rho * Math.sin(angle)).toFixed(1)} ${(R - rho * Math.cos(angle)).toFixed(1)}`)
+      }
+      even = !even
+    }
+  }
+  return parts.join(' ')
+}
+
+const ringCache = new Map<number, string>()
+
+/** Кайма по краю круглого барабана */
+export function OrnamentRing({ depth = 0.05, className = '' }: { depth?: number; className?: string }) {
+  if (!ringCache.has(depth)) ringCache.set(depth, ringPath(depth))
   return (
-    <svg className={`band ${className}`} aria-hidden="true">
-      <defs>
-        <pattern
-          id={id}
-          width={tileW}
-          height={BAND_H}
-          patternUnits="userSpaceOnUse"
-          viewBox={`0 0 ${ORNAMENT_W} ${ORNAMENT_H}`}
-        >
-          {/* Перевёрнут: сплошная лента сверху, завитки свисают вниз на прозрачный фон */}
-          <path d={ORNAMENT_PATH} fill="currentColor" transform={`translate(0 ${ORNAMENT_TOP}) scale(1 -1)`} />
-        </pattern>
-      </defs>
-      <rect width="100%" height={BAND_H} fill={`url(#${id})`} />
+    <svg className={`ring ${className}`} viewBox="0 0 1000 1000" aria-hidden="true">
+      <path d={ringCache.get(depth)} fill="currentColor" />
     </svg>
   )
 }
+

@@ -2,18 +2,18 @@
 @property --accent {
   syntax: '<color>';
   inherits: true;
-  initial-value: #1f5fe0;
+  initial-value: #0057ff;
 }
 
 :root {
-  --ink: #070b1a;
-  --navy: #0d1b3d;
-  --blue: #1f5fe0;
-  --red: #e3202f;
-  --gold: #f6c445; /* цвет курая с флага Башкортостана */
-  --green: #1f9d55;
-  --paper: #f4efe6;
-  --muted: #9aa6c4;
+  --ink: #000814;
+  --navy: #001233;
+  --blue: #0057ff;
+  --red: #ff2a3d;
+  --gold: #ffd400; /* цвет курая с флага Башкортостана */
+  --green: #00c27a;
+  --paper: #ffffff;
+  --muted: #9fb3d9;
 
   /* Unbounded — только для латинского логотипа: башкирских букв в нём нет */
   --font-logo: 'Unbounded', 'Arial Black', sans-serif;
@@ -223,19 +223,8 @@ body::after {
   color: var(--gold);
 }
 
-/* ===== Орнаментальная полоса ===== */
-/* Красный узор без фона; жёсткая тень даёт толщину, как у нашивки */
-.band {
-  display: block;
-  width: 100%;
-  height: 44px;
-  color: var(--red);
-  filter: drop-shadow(0 4px 0 rgb(0 0 0 / 0.35));
-}
-
-/* Шапка и кайма лежат поверх большого диска */
-.topbar,
-.band--top {
+/* Шапка лежит поверх большого диска */
+.topbar {
   position: relative;
   z-index: 5;
 }
@@ -625,13 +614,44 @@ a.menu__item:focus-visible::before {
   height: var(--disc);
   margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
   border-radius: 50%;
-  background:
-    repeating-conic-gradient(from 0deg, rgb(13 27 61 / 0.06) 0 6deg, transparent 6deg 12deg),
-    var(--paper);
   border: 6px solid var(--ink);
-  box-shadow:
-    0 0 0 4px var(--gold),
-    14px 14px 0 4px rgb(0 0 0 / 0.3);
+  box-shadow: 14px 14px 0 4px rgb(0 0 0 / 0.3);
+  /* Свой слой: кайма и тонировка не вылезают поверх нижней полосы */
+  isolation: isolate;
+}
+
+/* Купол юрты сверху: войлок, уыҡ (жерди) и шаңыраҡ в центре. Фото приглушено скриптом drum.mjs */
+.wheel__disc--yurt {
+  background: url('/drum/yurt.webp') center / cover, #8d8a84;
+}
+
+/* Розетка: узор цветом вещи по тёмному войлоку */
+.wheel__disc--rosette {
+  background: var(--navy);
+  color: rgb(var(--accent-rgb) / 0.5);
+}
+
+/* Тонировка в цвет вещи — чтобы барабан не выпадал из экрана */
+.wheel__disc::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgb(var(--accent-rgb) / 0.12);
+}
+
+.wheel__rosette,
+.wheel__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Кайма по краю барабана — вместо прежней жёлтой полоски */
+.wheel__ring {
+  z-index: 1;
+  color: var(--red);
 }
 
 .medal {
@@ -1056,9 +1076,8 @@ a.menu__item:focus-visible::before {
   color: var(--muted) !important;
 }
 
-/* ===== Временная панель сравнения палитр (?pal в адресе) ===== */
-/* Лежит поверх каймы: она декоративная, а логотип и кнопки остаются открыты */
-.palettes {
+/* ===== Временная панель сравнения барабанов (?drum в адресе) ===== */
+.variants {
   position: fixed;
   top: 104px;
   left: 50%;
@@ -1073,7 +1092,7 @@ a.menu__item:focus-visible::before {
   overflow-x: auto;
 }
 
-.palettes__item {
+.variants__item {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1087,22 +1106,11 @@ a.menu__item:focus-visible::before {
   cursor: pointer;
 }
 
-.palettes__item--on {
+.variants__item--on {
   border-color: #fff;
   background: rgb(255 255 255 / 0.12);
 }
 
-.palettes__dots {
-  display: flex;
-}
-
-.palettes__dots i {
-  width: 9px;
-  height: 9px;
-  margin-left: -2px;
-  border-radius: 50%;
-  border: 1px solid rgb(0 0 0 / 0.5);
-}
 
 /* ===== Бирка с ценой на вешалке ===== */
 .pricetag {
@@ -1245,8 +1253,20 @@ a.menu__item:focus-visible::before {
     touch-action: none;
   }
 
-  /* На телефоне без диска и желобка — только значки по дуге, ничего не обрезается */
-  .wheel--h .wheel__disc,
+  /* На телефоне виден только верх барабана: дуга с каймой над значками.
+     Центр круга — под экраном, на радиус ниже значков */
+  .wheel--h {
+    overflow: hidden;
+  }
+
+  .wheel--h .wheel__disc {
+    --disc: calc(var(--r) * 2 + 120px);
+    top: calc(42px + var(--r));
+    left: 50%;
+    border-width: 4px;
+    box-shadow: none;
+  }
+
   .wheel--h .wheel__track {
     display: none;
   }

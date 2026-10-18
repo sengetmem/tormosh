@@ -40,7 +40,7 @@ export const products: Product[] = [
     color: 'Белая',
     description: 'Два кота: красный и синий, в тюбетейке с башкирским орнаментом.',
     image: img('bakhet'),
-    accent: '#1f5fe0',
+    accent: '#0057ff',
     price: 1800,
   },
   {
@@ -52,7 +52,7 @@ export const products: Product[] = [
     color: 'Белая',
     description: 'Розыскной плакат про Салавата Юлаева — национального героя Башкортостана.',
     image: img('salawat'),
-    accent: '#e3202f',
+    accent: '#ff2a3d',
     price: 1800,
   },
   {
@@ -65,7 +65,7 @@ export const products: Product[] = [
     description: 'Спереди чистая. На спине — глаз в центре спирали и две руки, держащие нить.',
     image: img('spiral-back'),
     flip: { image: img('spiral-front'), labels: ['Спина', 'Перед'] },
-    accent: '#7a3cff',
+    accent: '#7b2dff',
     price: 1800,
   },
   {
@@ -77,7 +77,7 @@ export const products: Product[] = [
     color: 'Мятная',
     description: 'Рыжая лиса обвивает плечи, рядом три сердечка с узором.',
     image: img('sweater-fox'),
-    accent: '#2f9d74',
+    accent: '#00b383',
     price: null,
   },
 ]
@@ -98,4 +98,4 @@ export const slots: Slot[] = [
 /** Слот по позиции курсора: меню закольцовано, поэтому берём по модулю */
 export const slotAt = (k: number) => slots[((k % slots.length) + slots.length) % slots.length]
 
-export const LOCKED_ACCENT = '#4a5068'
+export const LOCKED_ACCENT = '#3a3f5c'

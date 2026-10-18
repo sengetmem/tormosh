@@ -1,7 +1,8 @@
 import { AnimatePresence, motion, type PanInfo } from 'motion/react'
 import { useRef } from 'react'
 import { slotAt, thumbOf, type Slot } from '../data/products'
-import { Kuskar } from './Ornament'
+import { Kuskar, OrnamentRing } from './Ornament'
+import { ROSETTE_PATH } from './rosettePath'
 
 type WheelProps = {
   /** Позиция курсора — растёт без ограничений, слот берём по модулю */
@@ -13,8 +14,8 @@ type WheelProps = {
   radius: number
   /** Куда повернули барабан: 1 или -1. Вещи в значках качаются по инерции в обратную сторону */
   direction: number
-  /** Цвет значка для вещи — из выбранной палитры */
-  accentOf: (id: string) => string
+  /** Рисунок на барабане */
+  drum: 'yurt' | 'rosette'
 }
 
 const VISIBLE = 2
@@ -24,7 +25,7 @@ const PAN_STEP = 90 // px протяжки на один шаг
 const FLING_SPEED = 900 // px/с рывка на одну вещь по инерции
 
 /** Барабан с медальонами, как в меню выбора персонажа Sonic Advance */
-export function Wheel({ cursor, onPick, vertical, radius: r, direction, accentOf }: WheelProps) {
+export function Wheel({ cursor, onPick, vertical, radius: r, direction, drum }: WheelProps) {
   const place = (offset: number) => {
     const a = (offset * (vertical ? STEP : STEP_H) * Math.PI) / 180
     const near = Math.abs(offset)
@@ -69,7 +70,20 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction, accentOf
       onPan={onPan}
       onPanEnd={onPanEnd}
     >
-      <div className="wheel__disc" aria-hidden="true" />
+      {/* Барабан поворачивается вместе со значками */}
+      <motion.div
+        className={`wheel__disc wheel__disc--${drum}`}
+        aria-hidden="true"
+        animate={{ rotate: -cursor * (vertical ? STEP : STEP_H) }}
+        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+      >
+        {drum === 'rosette' && (
+          <svg className="wheel__rosette" viewBox="0 0 1000 1000">
+            <path d={ROSETTE_PATH} fill="currentColor" />
+          </svg>
+        )}
+        <OrnamentRing className="wheel__ring" />
+      </motion.div>
       <div className="wheel__track" aria-hidden="true" />
       <AnimatePresence initial={false} custom={cursor}>
         {keys.map((k) => (
@@ -94,7 +108,7 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction, accentOf
             aria-hidden={k !== cursor}
             aria-label={label(slotAt(k))}
           >
-            <Medal slot={slotAt(k)} turn={cursor} kick={-direction} accentOf={accentOf} />
+            <Medal slot={slotAt(k)} turn={cursor} kick={-direction} />
           </motion.button>
         ))}
       </AnimatePresence>
@@ -110,12 +124,10 @@ function Medal({
   slot,
   turn,
   kick,
-  accentOf,
 }: {
   slot: Slot
   turn: number
   kick: number
-  accentOf: (id: string) => string
 }) {
   if (slot.kind === 'locked') {
     return (
@@ -125,7 +137,7 @@ function Medal({
     )
   }
   return (
-    <span className="medal__face" style={{ ['--accent' as string]: accentOf(slot.product.id) }}>
+    <span className="medal__face" style={{ ['--accent' as string]: slot.product.accent }}>
       {/* Ключ меняется на каждом повороте — качание запускается заново */}
       <motion.span
         key={turn}

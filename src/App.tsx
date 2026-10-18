@@ -3,13 +3,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Backdrop } from './components/Backdrop'
 import { ConfirmOverlay } from './components/ConfirmOverlay'
 import { Menu } from './components/Menu'
-import { OrnamentBand } from './components/Ornament'
 import { Stage } from './components/Stage'
 import { STEP_H, Wheel } from './components/Wheel'
 import { orderLink } from './config'
-import { paletteFromUrl, showPaletteSwitcher } from './data/palettes'
+import { drumFromUrl, showDrumSwitcher } from './data/drums'
 import { LOCKED_ACCENT, slotAt, slots } from './data/products'
-import { PaletteSwitcher } from './components/PaletteSwitcher'
+import { DrumSwitcher } from './components/DrumSwitcher'
 import { useMediaQuery, useViewport } from './hooks/useMediaQuery'
 import { chime, setMuted, tick, useMuted } from './sound'
 
@@ -30,6 +29,9 @@ const WHEEL_COOLDOWN = 280
 const STEP_COOLDOWN = 300
 /** Диаметр значка на телефоне, px — как в CSS (.wheel--h .medal) */
 const MEDAL_H = 66
+/** Фон экрана — цвет вещи, смешанный с --ink: доля самой вещи */
+const BG_BASE = '#000814'
+const BG_SHARE = 0.62
 
 export default function App() {
   const [[cursor, direction], setState] = useState<[number, number]>(() => [cursorFromHash(), 1])
@@ -45,9 +47,8 @@ export default function App() {
 
   const slot = slotAt(cursor)
   const product = slot.kind === 'product' ? slot.product : null
-  const [palette, setPalette] = useState(paletteFromUrl)
-  const accentOf = useCallback((id: string) => palette.accents[id] ?? LOCKED_ACCENT, [palette])
-  const accent = product ? accentOf(product.id) : palette.locked
+  const accent = product ? product.accent : LOCKED_ACCENT
+  const [drum, setDrum] = useState(drumFromUrl)
   const position = slots.indexOf(slot) + 1
 
   // Ссылку на вещь могут открыть, когда сайт уже открыт, — переключаемся на неё
@@ -70,9 +71,8 @@ export default function App() {
     // часть мобильных браузеров его не знает и показывает вместо фона почти чёрный
     const [r, g, b] = hexToRgb(accent)
     root.setProperty('--accent-rgb', `${r} ${g} ${b}`)
-    root.setProperty('--accent-bg', mixHex(accent, palette.bgBase, palette.bgShare))
-    for (const [name, value] of Object.entries(palette.vars)) root.setProperty(name, value)
-  }, [accent, palette])
+    root.setProperty('--accent-bg', mixHex(accent, BG_BASE, BG_SHARE))
+  }, [accent])
 
   useEffect(() => {
     history.replaceState(null, '', product ? `#${product.id}` : ' ')
@@ -152,8 +152,6 @@ export default function App() {
           <Menu />
         </header>
 
-        <OrnamentBand id="band-top" className="band--top" />
-
         <main className="arena" onWheel={onWheel}>
           <div className="selector">
             <button type="button" className="chevron chevron--prev" onClick={() => step(-1)} aria-label="Предыдущая">
@@ -178,7 +176,7 @@ export default function App() {
             </button>
           </div>
 
-          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} accentOf={accentOf} />
+          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} drum={drum.id} />
 
           <div className="arena__stage">
             <Stage slot={slot} stepKey={cursor} direction={direction} onSwipe={step} tag={priceText} />
@@ -212,7 +210,7 @@ export default function App() {
 
       </div>
 
-      {showPaletteSwitcher() && <PaletteSwitcher current={palette} onPick={setPalette} />}
+      {showDrumSwitcher() && <DrumSwitcher current={drum} onPick={setDrum} />}
 
       <AnimatePresence>{confirmed && product && <ConfirmOverlay product={product} onClose={closeConfirm} />}</AnimatePresence>
     </div>
