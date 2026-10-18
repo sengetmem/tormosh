@@ -67,9 +67,15 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
       onPan={onPan}
       onPanEnd={onPanEnd}
     >
-      <div className="wheel__disc" aria-hidden="true">
+      {/* Купол юрты поворачивается вместе со значками */}
+      <motion.div
+        className="wheel__disc"
+        aria-hidden="true"
+        animate={{ rotate: -cursor * (vertical ? STEP : STEP_H) }}
+        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+      >
         <OrnamentRing className="wheel__ring" />
-      </div>
+      </motion.div>
       <div className="wheel__track" aria-hidden="true" />
       <AnimatePresence initial={false} custom={cursor}>
         {keys.map((k) => (

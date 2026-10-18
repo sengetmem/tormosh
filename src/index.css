@@ -614,13 +614,21 @@ a.menu__item:focus-visible::before {
   height: var(--disc);
   margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
   border-radius: 50%;
-  background:
-    repeating-conic-gradient(from 0deg, rgb(13 27 61 / 0.06) 0 6deg, transparent 6deg 12deg),
-    var(--paper);
+  /* Купол юрты сверху: войлок, уыҡ (жерди) и шаңыраҡ. Фото приглушено скриптом drum.mjs */
+  background: url('/drum/yurt.webp') center / cover, #8d8a84;
   border: 6px solid var(--ink);
   box-shadow: 14px 14px 0 4px rgb(0 0 0 / 0.3);
   /* Свой слой: кайма не вылезает поверх нижней полосы */
   isolation: isolate;
+}
+
+/* Затемнение с лёгким оттенком вещи: юрта — фон, а не главное на экране */
+.wheel__disc::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(rgb(var(--accent-rgb) / 0.1), rgb(var(--accent-rgb) / 0.1)), rgb(0 8 20 / 0.5);
 }
 
 .wheel__ring {
