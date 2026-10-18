@@ -22,7 +22,7 @@
   --font-body: 'Golos Text', system-ui, sans-serif;
   --skew: -10deg;
 
-  color-scheme: dark;
+  color-scheme: only dark;
 }
 
 *,
@@ -81,7 +81,9 @@ kbd {
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  background: color-mix(in srgb, var(--accent) 42%, #0a0f22);
+  /* Готовый цвет из App.tsx: color-mix понимают не все мобильные браузеры */
+  background-color: var(--accent-bg, #0f2b6b);
+  transition: background-color 0.6s ease;
 }
 
 .backdrop__stripes {
@@ -306,7 +308,7 @@ body::after {
   width: min(420px, 100vw);
   padding: 6rem 2rem 2rem;
   background:
-    linear-gradient(160deg, color-mix(in srgb, var(--accent) 35%, transparent), transparent 60%),
+    linear-gradient(160deg, rgb(var(--accent-rgb) / 0.35), transparent 60%),
     var(--ink);
   border-left: 4px solid var(--gold);
   overflow-y: auto;
@@ -612,7 +614,7 @@ a.menu__item:focus-visible::before {
   height: var(--d);
   margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
   border-radius: 50%;
-  border: var(--groove) solid color-mix(in srgb, var(--accent) 14%, rgb(13 27 61 / 0.1));
+  border: var(--groove) solid rgb(var(--accent-rgb) / 0.16);
 }
 
 .wheel__disc {
@@ -1045,7 +1047,7 @@ a.menu__item:focus-visible::before {
 }
 
 .sizes__table tbody tr:hover {
-  background: color-mix(in srgb, var(--accent) 22%, var(--paper));
+  background: rgb(var(--accent-rgb) / 0.22);
 }
 
 .sizes__unit {

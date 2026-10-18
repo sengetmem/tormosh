@@ -11,13 +11,21 @@ import { LOCKED_ACCENT, slotAt, slots } from './data/products'
 import { useMediaQuery, useViewport } from './hooks/useMediaQuery'
 import { chime, setMuted, tick, useMuted } from './sound'
 
+const BG_BASE = '#0a0f22'
+
+const hexToRgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
+
+/** Смешать два цвета #rrggbb: share — доля первого */
+const mixHex = (a: string, b: string, share: number) => {
+  const [x, y] = [hexToRgb(a), hexToRgb(b)]
+  return `rgb(${x.map((v, i) => Math.round(v * share + y[i] * (1 - share))).join(' ')})`
+}
+
 // Ссылка вида /#seen-this-man сразу открывает нужную футболку
 const cursorFromHash = () =>
   Math.max(0, slots.findIndex((s) => s.kind === 'product' && `#${s.product.id}` === window.location.hash))
 
 const WHEEL_COOLDOWN = 280
-/** Длина вертикального свайпа на телефоне на один шаг, px */
-const SWIPE_Y = 60
 /** Наименьший промежуток между шагами меню, мс */
 const STEP_COOLDOWN = 300
 /** Диаметр значка на телефоне, px — как в CSS (.wheel--h .medal) */
@@ -54,7 +62,13 @@ export default function App() {
 
   // Цвет товара красит всю страницу, включая меню, которое живёт вне .site
   useEffect(() => {
-    document.documentElement.style.setProperty('--accent', accent)
+    const root = document.documentElement.style
+    root.setProperty('--accent', accent)
+    // Производные цвета считаем здесь, а не через color-mix в CSS:
+    // часть мобильных браузеров его не знает и показывает вместо фона почти чёрный
+    const [r, g, b] = hexToRgb(accent)
+    root.setProperty('--accent-rgb', `${r} ${g} ${b}`)
+    root.setProperty('--accent-bg', mixHex(accent, BG_BASE, 0.42))
   }, [accent])
 
   useEffect(() => {
@@ -97,29 +111,6 @@ export default function App() {
 
   // Колёсико мыши листает вещи, как стрелки. Пауза — чтобы один щелчок колёсика = один шаг
   const lastWheel = useRef(0)
-  // На телефоне вместо колёсика — вертикальный свайп в любом месте экрана:
-  // каждые SWIPE_Y пикселей — шаг (вверх — следующая вещь). Скорость режет общий STEP_COOLDOWN
-  const touchY = useRef<number | null>(null)
-  const onPointerDown = (e: React.PointerEvent) => {
-    touchY.current = vertical || e.pointerType === 'mouse' ? null : e.clientY
-  }
-  const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
-    if (touchY.current === null) return
-    const dy = e.clientY - touchY.current
-    // Палец пошёл — «прикрепляем» касание к зоне: иначе после смены вещи
-    // картинка под пальцем пропадает, и движения дальше не доходят.
-    // До движения не захватываем, чтобы обычные тапы по кнопкам работали
-    if (Math.abs(dy) > 8 && !e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    }
-    if (Math.abs(dy) < SWIPE_Y) return
-    step(dy < 0 ? 1 : -1)
-    touchY.current = e.clientY
-  }
-  const onPointerUp = () => {
-    touchY.current = null
-  }
-
   const onWheel = (e: React.WheelEvent) => {
     if (!vertical || Math.abs(e.deltaY) < 4) return
     const now = Date.now()
@@ -160,14 +151,7 @@ export default function App() {
 
         <OrnamentBand id="band-top" className="band--top" />
 
-        <main
-          className="arena"
-          onWheel={onWheel}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-        >
+        <main className="arena" onWheel={onWheel}>
           <div className="selector">
             <button type="button" className="chevron chevron--prev" onClick={() => step(-1)} aria-label="Предыдущая">
               <span aria-hidden="true">▲</span>

@@ -38,8 +38,8 @@ export function Stage({ slot, stepKey, direction, onSwipe, tag }: StageProps) {
       <motion.div
         className="stage__drag"
         style={{ x, rotate }}
-        drag
-        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
         // Без инерции: отпустил — вещь сразу пружинит на крючок, а не улетает от рывка.
         // Малая упругость — даже при длинной протяжке сдвиг небольшой
         dragElastic={0.12}
@@ -47,16 +47,24 @@ export function Stage({ slot, stepKey, direction, onSwipe, tag }: StageProps) {
         dragTransition={{ bounceStiffness: 400, bounceDamping: 30 }}
         onDragEnd={handleDragEnd}
       >
-        <AnimatePresence mode="popLayout" initial={false}>
+        {/* Смена вещи как перелистывание: старая уезжает вбок по ходу свайпа,
+            новая въезжает с другой стороны и чуть качается на крючке */}
+        <AnimatePresence mode="popLayout" initial={false} custom={direction}>
           <motion.div
             key={stepKey}
             className="hanger"
-            initial={{ y: -60, rotate: direction * 6, opacity: 0 }}
-            animate={{ y: 0, rotate: 0, opacity: 1 }}
-            exit={{ y: 60, opacity: 0, transition: { duration: 0.18 } }}
+            custom={direction}
+            variants={{
+              enter: (dir: number) => ({ x: `${dir * 70}%`, rotate: dir * 6, opacity: 0 }),
+              show: { x: 0, rotate: 0, opacity: 1 },
+              leave: (dir: number) => ({ x: `${dir * -70}%`, rotate: dir * -4, opacity: 0 }),
+            }}
+            initial="enter"
+            animate="show"
+            exit="leave"
             transition={{
-              y: { type: 'spring', stiffness: 300, damping: 22 },
-              opacity: { duration: 0.15 },
+              x: { type: 'spring', stiffness: 320, damping: 32 },
+              opacity: { duration: 0.2 },
               // Одно-два мягких качания и останавливается
               rotate: { type: 'spring', stiffness: 120, damping: 11 },
             }}
