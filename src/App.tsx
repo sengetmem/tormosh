@@ -155,13 +155,20 @@ export default function App() {
               <span aria-hidden="true">▲</span>
             </button>
             <div className="plate-wrap">
-              <AnimatePresence mode="popLayout" initial={false}>
+              {/* Табличка едет по ходу листания: «дальше» — новая приезжает справа, «назад» — слева */}
+              <AnimatePresence mode="popLayout" initial={false} custom={direction}>
                 <motion.h2
                   key={cursor}
                   className={`plate${product && product.name.length > 10 ? ' plate--long' : ''}`}
-                  initial={{ x: -60, opacity: 0, skewX: -10 }}
-                  animate={{ x: 0, opacity: 1, skewX: -10 }}
-                  exit={{ x: 60, opacity: 0, skewX: -10 }}
+                  custom={direction}
+                  variants={{
+                    enter: (dir: number) => ({ x: dir * 60, opacity: 0, skewX: -10 }),
+                    show: { x: 0, opacity: 1, skewX: -10 },
+                    leave: (dir: number) => ({ x: dir * -60, opacity: 0, skewX: -10 }),
+                  }}
+                  initial="enter"
+                  animate="show"
+                  exit="leave"
                   transition={{ type: 'spring', stiffness: 420, damping: 30 }}
                 >
                   {product ? product.name : '???'}
