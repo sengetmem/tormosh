@@ -68,13 +68,12 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
       onPan={onPan}
       onPanEnd={onPanEnd}
     >
-      {/* Купол юрты: жердей столько же, сколько вещей, и на каждую вещь — поворот на одну жердь.
-          Полный круг барабана = весь каталог. Пружина без перелёта — купол не качается туда-сюда */}
+      {/* Купол юрты (жердей столько же, сколько вещей) крутится ровно как значки: тот же шаг и та же пружина */}
       <motion.div
         className="wheel__disc"
         aria-hidden="true"
-        animate={{ rotate: (-cursor * 360) / slots.length }}
-        transition={{ type: 'spring', stiffness: 140, damping: 26 }}
+        animate={{ rotate: -cursor * (vertical ? STEP : STEP_H) }}
+        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
       >
         <YurtDome poles={slots.length} phase={vertical ? 0 : -90} />
         <OrnamentRing className="wheel__ring" />
