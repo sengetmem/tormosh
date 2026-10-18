@@ -21,6 +21,8 @@ const VISIBLE = 2
 export const stepOf = (vertical: boolean) => (vertical ? 40 : 360 / 14)
 /** Сколько значков от выбранного до края дуги на телефоне */
 export const EDGE_STEPS = 2
+/** Временно, на выбор владельца: ?border=between — завитки каймы между лучами, иначе — на лучах */
+const BORDER = new URLSearchParams(window.location.search).get('border') === 'between' ? 'between' : 'rays'
 const PAN_STEP = 90 // px протяжки на один шаг
 const FLING_SPEED = 900 // px/с рывка на одну вещь по инерции
 
@@ -71,7 +73,7 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
     >
       {/* Медальон крутится вместе со значками, лучи — по шагу значков: каждый значок на своём луче */}
       <motion.div className="wheel__disc" aria-hidden="true" style={{ rotate }}>
-        <Medallion rays={Math.round(360 / step)} phase={vertical ? 0 : -90} />
+        <Medallion border={BORDER} rays={Math.round(360 / step)} phase={vertical ? 0 : -90} />
         <OrnamentRing className="wheel__ring" />
       </motion.div>
       {keys.map((k) => (

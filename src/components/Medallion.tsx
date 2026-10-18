@@ -1,6 +1,8 @@
 import { MEDALLION } from './medallionPath'
 
 type Props = {
+  /** Завитки внешней каймы: продолжают лучи или стоят посередине между ними */
+  border: 'rays' | 'between'
   /** Сколько лучей — по шагу значков, чтобы каждый значок стоял на своём луче */
   rays: number
   /** Угол первого луча, градусы (0 — вправо): туда смотрит выбранный значок */
@@ -21,6 +23,9 @@ const SPRIG_R = 262 // на каком радиусе центр завитка
 const SPRIG_OUT = 362 // дальше завитков нет — там кончик каймы, пробивающий обод
 
 const BORDER_OUT = 474 // дальше начинается внешняя линия исходника — её закрывает наша кайма
+/** Завиток каймы в исходнике: верхний, на −90°, шириной ±16° */
+const KNOT_MID = -90
+const KNOT_HALF = 16
 
 /** Круг одним путём — для вырезов */
 const circle = (r: number) => `M ${C - r} ${C} A ${r} ${r} 0 1 0 ${C + r} ${C} A ${r} ${r} 0 1 0 ${C - r} ${C} Z`
@@ -32,12 +37,15 @@ const arc = (r: number, deg: number) => {
 
 /** Медальон на барабане (фон — бумага самого диска). Лучи и завитки между ними строятся
  *  по числу значков; кайма из завитков и шаңыраҡ — как на картинке владельца. Цвет — в CSS */
-export function Medallion({ rays, phase }: Props) {
+export function Medallion({ border, rays, phase }: Props) {
   const sector = 360 / rays
   // В узком секторе завиток уменьшаем, чтобы соседние не слипались
   const shrink = Math.min(1, sector / SRC_SECTOR)
   const [sx, sy] = arc(SPRIG_R, SRC_MID).split(' ').map(Number)
   const angles = Array.from({ length: rays }, (_, i) => phase + i * sector)
+  // Завитков каймы столько же, сколько лучей; в тесном круге (телефон) они мельче
+  const knotShrink = Math.min(1, sector / (KNOT_HALF * 2 + 4))
+  const knotAt = border === 'rays' ? 0 : sector / 2
 
   return (
     <svg className="yurt medallion" viewBox="0 0 1000 1000" aria-hidden="true">
@@ -48,12 +56,11 @@ export function Medallion({ rays, phase }: Props) {
             d={`M ${arc(SPRIG_IN, SRC_MID - SRC_SECTOR / 2)} L ${arc(SPRIG_OUT, SRC_MID - SRC_SECTOR / 2)} A ${SPRIG_OUT} ${SPRIG_OUT} 0 0 1 ${arc(SPRIG_OUT, SRC_MID + SRC_SECTOR / 2)} L ${arc(SPRIG_IN, SRC_MID + SRC_SECTOR / 2)} Z`}
           />
         </clipPath>
-        {/* Снаружи обода — кайма из завитков, берём как есть. Тонкую внешнюю линию исходника
-            срезаем: её место занимает наша красная кайма, иначе между ними остаётся зазор */}
-        <clipPath id="medallion-border">
+        {/* Один завиток внешней каймы (верхний). Тонкую внешнюю линию исходника срезаем:
+            её место занимает наша красная кайма, иначе между ними остаётся зазор */}
+        <clipPath id="medallion-knot">
           <path
-            d={`${circle(BORDER_OUT)} ${circle(RIM)}`}
-            clipRule="evenodd"
+            d={`M ${arc(RIM, KNOT_MID - KNOT_HALF)} L ${arc(BORDER_OUT, KNOT_MID - KNOT_HALF)} A ${BORDER_OUT} ${BORDER_OUT} 0 0 1 ${arc(BORDER_OUT, KNOT_MID + KNOT_HALF)} L ${arc(RIM, KNOT_MID + KNOT_HALF)} Z`}
           />
         </clipPath>
         {/* Из фиолетового слоя берём только шаңыраҡ: обод исходника с зазубринами
@@ -63,7 +70,14 @@ export function Medallion({ rays, phase }: Props) {
         </clipPath>
       </defs>
 
-      <path className="medallion__blue" d={MEDALLION.blue} fillRule="evenodd" clipPath="url(#medallion-border)" />
+      {/* Завитки каймы: на продолжении каждого луча или посередине между лучами */}
+      {angles.map((a) => (
+        <g key={`k${a}`} transform={`rotate(${a + knotAt - KNOT_MID} ${C} ${C})`}>
+          <g transform={`translate(${C} ${C - RIM}) scale(${knotShrink}) translate(${-C} ${-(C - RIM)})`}>
+            <path className="medallion__blue" d={MEDALLION.blue} fillRule="evenodd" clipPath="url(#medallion-knot)" />
+          </g>
+        </g>
+      ))}
 
       {/* Завиток посередине каждого сектора */}
       {angles.map((a) => (

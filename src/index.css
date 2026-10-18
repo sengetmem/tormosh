@@ -807,12 +807,15 @@ a.menu__item:focus-visible::before {
   gap: 2rem;
   padding: 1rem;
   background: rgb(7 11 26 / 0.88);
-  }
+  overflow: hidden;
+}
 
+/* Полоса шире экрана: после наклона её концы не должны открывать углы — на узком телефоне
+   при ширине ровно в экран по бокам оставались треугольные зазоры */
 .confirm__flash {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: -15%;
+  right: -15%;
   top: 50%;
   height: 34vh;
   margin-top: -24vh;
