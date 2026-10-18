@@ -10,6 +10,16 @@ import { LOCKED_ACCENT, slotAt, slots } from './data/products'
 import { useMediaQuery, useViewport } from './hooks/useMediaQuery'
 import { chime, setMuted, tick, useMuted } from './sound'
 
+/** Заранее скачанные и раскодированные картинки — держим ссылки, чтобы браузер их не выбросил */
+const preloaded = new Map<string, HTMLImageElement>()
+const preload = (src: string) => {
+  if (preloaded.has(src)) return
+  const image = new Image()
+  image.src = src
+  image.decode().catch(() => {})
+  preloaded.set(src, image)
+}
+
 const hexToRgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
 
 /** Смешать два цвета #rrggbb: share — доля первого */
@@ -74,6 +84,18 @@ export default function App() {
   useEffect(() => {
     history.replaceState(null, '', product ? `#${product.id}` : ' ')
   }, [product])
+
+  // Соседние вещи (по две в каждую сторону) качаем заранее — при листании они появляются сразу,
+  // без пустой вешалки. Обратную сторону («повернуть») тоже
+  useEffect(() => {
+    for (const offset of [1, -1, 2, -2]) {
+      const s = slotAt(cursor + offset)
+      if (s.kind !== 'product') continue
+      preload(s.product.image)
+      if (s.product.flip) preload(s.product.flip.image)
+    }
+    if (product?.flip) preload(product.flip.image)
+  }, [cursor, product])
 
   // Ограничение скорости: не чаще одного шага в STEP_COOLDOWN мс — для кнопок,
   // клавиш, колёсика и пальца. Иначе при быстром листании анимации наслаиваются и лагают
