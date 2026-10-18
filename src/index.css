@@ -599,9 +599,8 @@ a.menu__item:focus-visible::before {
   height: var(--disc);
   margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
   border-radius: 50%;
-  background:
-    repeating-conic-gradient(from 0deg, rgb(13 27 61 / 0.06) 0 6deg, transparent 6deg 12deg),
-    #f4efe6;
+  /* Ровная бумага без лучей-полосок: только два цвета, никаких серых клиньев у узора */
+  background: #f4efe6;
   border: 6px solid var(--ink);
   box-shadow: 14px 14px 0 4px rgb(0 0 0 / 0.3);
   /* Свой слой: кайма не вылезает поверх нижней полосы */

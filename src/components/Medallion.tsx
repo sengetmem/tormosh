@@ -9,8 +9,11 @@ type Props = {
 
 const C = 500
 const CROWN = 138 // внешний край шаңыраҡа
+const CROWN_IN = 110 // внутренний край его обода: лучи начинаются под ободом, без щели
+const SPRIG_IN = 182 // ближе к центру завитков нет — там только обрезки соседних лучей
 const RAY_END = 390 // лучи доходят до фиолетового обода
 const RIM = 396 // фиолетовый обод: внутри — лучи и узор, снаружи — кайма из завитков
+const RIM_W = 18 // его толщина: перекрывает и основания завитков каймы
 /** В исходнике лучей 8: завиток стоит посередине между лучами −90° и −45° */
 const SRC_SECTOR = 45
 const SRC_MID = -67.5
@@ -42,7 +45,7 @@ export function Medallion({ rays, phase }: Props) {
         {/* Один сектор исходника между двумя лучами — из него берём завиток */}
         <clipPath id="medallion-sprig">
           <path
-            d={`M ${arc(CROWN, SRC_MID - SRC_SECTOR / 2)} L ${arc(SPRIG_OUT, SRC_MID - SRC_SECTOR / 2)} A ${SPRIG_OUT} ${SPRIG_OUT} 0 0 1 ${arc(SPRIG_OUT, SRC_MID + SRC_SECTOR / 2)} L ${arc(CROWN, SRC_MID + SRC_SECTOR / 2)} Z`}
+            d={`M ${arc(SPRIG_IN, SRC_MID - SRC_SECTOR / 2)} L ${arc(SPRIG_OUT, SRC_MID - SRC_SECTOR / 2)} A ${SPRIG_OUT} ${SPRIG_OUT} 0 0 1 ${arc(SPRIG_OUT, SRC_MID + SRC_SECTOR / 2)} L ${arc(SPRIG_IN, SRC_MID + SRC_SECTOR / 2)} Z`}
           />
         </clipPath>
         {/* Снаружи обода — кайма из завитков, берём как есть. Тонкую внешнюю линию исходника
@@ -52,6 +55,11 @@ export function Medallion({ rays, phase }: Props) {
             d={`${circle(BORDER_OUT)} ${circle(RIM)}`}
             clipRule="evenodd"
           />
+        </clipPath>
+        {/* Из фиолетового слоя берём только шаңыраҡ: обод исходника с зазубринами
+            от старых лучей заменён ровным кольцом */}
+        <clipPath id="medallion-crown">
+          <path d={circle(CROWN + 20)} />
         </clipPath>
       </defs>
 
@@ -71,17 +79,19 @@ export function Medallion({ rays, phase }: Props) {
         <rect
           key={`r${a}`}
           className="medallion__gold"
-          x={C + CROWN - 4}
+          x={C + CROWN_IN + 2}
           y={C - 9}
-          width={RAY_END - CROWN + 4}
+          width={RAY_END - CROWN_IN - 2}
           height={18}
           transform={`rotate(${a} ${C} ${C})`}
         />
       ))}
 
       {/* Обод сплошным кольцом: в исходнике его разрывали кончики каймы на старых лучах */}
-      <circle className="medallion__ring" cx={C} cy={C} r={RIM} strokeWidth={14} />
-      <path className="medallion__purple" d={MEDALLION.purple} fillRule="evenodd" />
+      <circle className="medallion__ring" cx={C} cy={C} r={RIM} strokeWidth={RIM_W} />
+      {/* Обод шаңыраҡа ровным кольцом — в обводке он чуть неровный */}
+      <circle className="medallion__ring" cx={C} cy={C} r={(CROWN + CROWN_IN) / 2} strokeWidth={CROWN - CROWN_IN} />
+      <path className="medallion__purple" d={MEDALLION.purple} fillRule="evenodd" clipPath="url(#medallion-crown)" />
     </svg>
   )
 }
