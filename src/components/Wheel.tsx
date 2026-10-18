@@ -82,7 +82,7 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
         {DRUM_LOOK === 'yurt' ? (
           <YurtDome poles={Math.round(360 / step)} phase={vertical ? 0 : -90} />
         ) : (
-          <Medallion />
+          <Medallion rays={Math.round(360 / step)} phase={vertical ? 0 : -90} />
         )}
         <OrnamentRing className="wheel__ring" />
       </motion.div>

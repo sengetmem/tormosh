@@ -655,6 +655,10 @@ a.menu__item:focus-visible::before {
 .medallion__purple {
   fill: #8c32eb;
 }
+.medallion__ring {
+  fill: none;
+  stroke: #8c32eb;
+}
 .medallion__gold {
   fill: #fcc103;
 }
@@ -673,6 +677,9 @@ a.menu__item:focus-visible::before {
 }
 .wheel__disc--medallion-drum .medallion__purple {
   fill: #0d1b3d;
+}
+.wheel__disc--medallion-drum .medallion__ring {
+  stroke: #0d1b3d;
 }
 .wheel__disc--medallion-drum .medallion__gold {
   fill: #f6c445;
