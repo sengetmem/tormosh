@@ -1,10 +1,8 @@
 import { motion, useSpring, useTransform, type MotionValue, type PanInfo } from 'motion/react'
 import { useEffect, useRef } from 'react'
-import { slotAt, slots, thumbOf, type Slot } from '../data/products'
+import { slotAt, thumbOf, type Slot } from '../data/products'
 import { Kuskar, OrnamentRing } from './Ornament'
-import { DRUM_LOOK } from '../data/drums'
 import { Medallion } from './Medallion'
-import { YurtDome } from './YurtDome'
 
 type WheelProps = {
   /** Позиция курсора — растёт без ограничений, слот берём по модулю */
@@ -19,16 +17,10 @@ type WheelProps = {
 }
 
 const VISIBLE = 2
-// Два варианта на выбор владельца (?yurt=items или ?yurt=poles в адресе):
-// items — значки раздвинуты по жердям: шаг 360°/число вещей, на каждой жерди своя вещь;
-// poles — значки как раньше (40° на компьютере, ~25° на телефоне), жердь под каждым значком
-const YURT_MODE = new URLSearchParams(window.location.search).get('yurt') === 'items' ? 'items' : 'poles'
-
-/** Градусов между значками (и между жердями юрты) */
-export const stepOf = (vertical: boolean) =>
-  YURT_MODE === 'items' ? 360 / slots.length : vertical ? 40 : 360 / 14
+/** Градусов между значками (и между лучами медальона). На телефоне дуга пологая: 14 шагов на круг */
+export const stepOf = (vertical: boolean) => (vertical ? 40 : 360 / 14)
 /** Сколько значков от выбранного до края дуги на телефоне */
-export const EDGE_STEPS = YURT_MODE === 'items' ? 1 : 2
+export const EDGE_STEPS = 2
 const PAN_STEP = 90 // px протяжки на один шаг
 const FLING_SPEED = 900 // px/с рывка на одну вещь по инерции
 
@@ -77,16 +69,11 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
       onPan={onPan}
       onPanEnd={onPanEnd}
     >
-      {/* Купол юрты крутится вместе со значками, жерди — по шагу значков */}
-      <motion.div className={`wheel__disc wheel__disc--${DRUM_LOOK}`} aria-hidden="true" style={{ rotate }}>
-        {DRUM_LOOK === 'yurt' ? (
-          <YurtDome poles={Math.round(360 / step)} phase={vertical ? 0 : -90} />
-        ) : (
-          <Medallion rays={Math.round(360 / step)} phase={vertical ? 0 : -90} />
-        )}
+      {/* Медальон крутится вместе со значками, лучи — по шагу значков: каждый значок на своём луче */}
+      <motion.div className="wheel__disc" aria-hidden="true" style={{ rotate }}>
+        <Medallion rays={Math.round(360 / step)} phase={vertical ? 0 : -90} />
         <OrnamentRing className="wheel__ring" />
       </motion.div>
-      <div className="wheel__track" aria-hidden="true" />
       {keys.map((k) => (
         <WheelMedal
           key={k}
@@ -130,11 +117,8 @@ function WheelMedal({
   const x = useTransform(pos, (p) => r * (vertical ? Math.cos(angle(p)) : Math.sin(angle(p))))
   const y = useTransform(pos, (p) => r * (vertical ? Math.sin(angle(p)) : 1 - Math.cos(angle(p))))
   const scale = useTransform(pos, (p) => 1 - 0.32 * Math.min(1, near(p)))
-  // Яркость плавно падает к краю: выбранный 1, соседи 0.9, крайние 0.4, дальше — ноль
-  const opacity = useTransform(pos, (p) => {
-    const n = near(p)
-    return n <= 1 ? 1 - 0.1 * n : n <= 2 ? 0.9 - 0.5 * (n - 1) : Math.max(0, 0.4 * (3 - n))
-  })
+  // Значки непрозрачные; гаснет только тот, что уходит за край дуги
+  const opacity = useTransform(pos, (p) => Math.max(0, Math.min(1, 3 - near(p))))
   const slot = slotAt(k)
   return (
     <motion.button

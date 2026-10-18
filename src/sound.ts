@@ -12,9 +12,10 @@ const listeners = new Set<() => void>()
 
 function readMuted() {
   try {
-    return localStorage.getItem(KEY) === '1'
+    // По умолчанию звук выключен — включается кнопкой в шапке
+    return localStorage.getItem(KEY) !== '0'
   } catch {
-    return false
+    return true
   }
 }
 

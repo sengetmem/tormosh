@@ -17,13 +17,18 @@ const SRC_MID = -67.5
 const SPRIG_R = 262 // на каком радиусе центр завитка
 const SPRIG_OUT = 362 // дальше завитков нет — там кончик каймы, пробивающий обод
 
+const BORDER_OUT = 474 // дальше начинается внешняя линия исходника — её закрывает наша кайма
+
+/** Круг одним путём — для вырезов */
+const circle = (r: number) => `M ${C - r} ${C} A ${r} ${r} 0 1 0 ${C + r} ${C} A ${r} ${r} 0 1 0 ${C - r} ${C} Z`
+
 const arc = (r: number, deg: number) => {
   const a = (deg * Math.PI) / 180
   return `${(C + r * Math.cos(a)).toFixed(1)} ${(C + r * Math.sin(a)).toFixed(1)}`
 }
 
-/** Медальон на барабане. Лучи и завитки между ними строятся по числу значков;
- *  внешняя кайма и шаңыраҡ — как на картинке владельца. Цвета слоёв — в CSS (.medallion__*) */
+/** Медальон на барабане (фон — бумага самого диска). Лучи и завитки между ними строятся
+ *  по числу значков; кайма из завитков и шаңыраҡ — как на картинке владельца. Цвет — в CSS */
 export function Medallion({ rays, phase }: Props) {
   const sector = 360 / rays
   // В узком секторе завиток уменьшаем, чтобы соседние не слипались
@@ -40,13 +45,16 @@ export function Medallion({ rays, phase }: Props) {
             d={`M ${arc(CROWN, SRC_MID - SRC_SECTOR / 2)} L ${arc(SPRIG_OUT, SRC_MID - SRC_SECTOR / 2)} A ${SPRIG_OUT} ${SPRIG_OUT} 0 0 1 ${arc(SPRIG_OUT, SRC_MID + SRC_SECTOR / 2)} L ${arc(CROWN, SRC_MID + SRC_SECTOR / 2)} Z`}
           />
         </clipPath>
-        {/* Всё, что снаружи обода, — кайма из завитков, берём как есть */}
+        {/* Снаружи обода — кайма из завитков, берём как есть. Тонкую внешнюю линию исходника
+            срезаем: её место занимает наша красная кайма, иначе между ними остаётся зазор */}
         <clipPath id="medallion-border">
-          <path d={`M 0 0 H 1000 V 1000 H 0 Z M ${C - RIM} ${C} A ${RIM} ${RIM} 0 1 0 ${C + RIM} ${C} A ${RIM} ${RIM} 0 1 0 ${C - RIM} ${C} Z`} clipRule="evenodd" />
+          <path
+            d={`${circle(BORDER_OUT)} ${circle(RIM)}`}
+            clipRule="evenodd"
+          />
         </clipPath>
       </defs>
 
-      <circle className="medallion__bg" cx={C} cy={C} r={500} />
       <path className="medallion__blue" d={MEDALLION.blue} fillRule="evenodd" clipPath="url(#medallion-border)" />
 
       {/* Завиток посередине каждого сектора */}
