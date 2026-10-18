@@ -1,0 +1,1291 @@
+/* ===== Токены бренда ===== */
+@property --accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1f5fe0;
+}
+
+:root {
+  --ink: #070b1a;
+  --navy: #0d1b3d;
+  --blue: #1f5fe0;
+  --red: #e3202f;
+  --gold: #f6c445; /* цвет курая с флага Башкортостана */
+  --green: #1f9d55;
+  --paper: #f4efe6;
+  --muted: #9aa6c4;
+
+  /* Unbounded — только для латинского логотипа: башкирских букв в нём нет */
+  --font-logo: 'Unbounded', 'Arial Black', sans-serif;
+  /* Rubik и Golos Text содержат все башкирские буквы: ә ҙ ҡ ғ ҫ ң ө ү һ */
+  --font-display: 'Rubik', 'Arial Black', sans-serif;
+  --font-body: 'Golos Text', system-ui, sans-serif;
+  --skew: -10deg;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 4px;
+}
+
+kbd {
+  font-family: var(--font-body);
+  font-size: 0.75em;
+  padding: 0.1em 0.45em;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  border-radius: 4px;
+}
+
+/* ===== Каркас экрана ===== */
+:root {
+  transition: --accent 0.6s ease;
+}
+
+.screen {
+  position: relative;
+  height: 100svh;
+  min-height: 640px;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ===== Фон ===== */
+/* Плоский цвет и полосы, без свечений: как напечатанный экран игры */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--accent) 42%, #0a0f22);
+}
+
+.backdrop__stripes {
+  position: absolute;
+  inset: -200px;
+  background: repeating-linear-gradient(45deg, rgb(0 0 0 / 0.16) 0 40px, transparent 40px 80px);
+  animation: stripes 3s linear infinite;
+}
+
+@keyframes stripes {
+  to {
+    transform: translateX(113.137px);
+  }
+}
+
+/* Зерно бумаги поверх всей страницы — убирает «стерильность» цифровых заливок */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  /* Обычное наложение, без mix-blend-mode: смешивание поверх анимации тормозит на слабых устройствах */
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ===== Верхняя панель ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  padding: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 4vw, 3rem) 0.5rem;
+}
+
+.logo {
+  margin: 0;
+  font-family: var(--font-logo);
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  transform: skewX(var(--skew));
+  text-shadow: 4px 4px 0 var(--accent);
+  white-space: nowrap;
+}
+
+
+
+/* ===== Чёрные полосы (как в меню Sonic Advance) ===== */
+.strip {
+  background: rgb(3 5 12 / 0.92);
+  color: var(--paper);
+}
+
+.strip--top {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem 0.75rem 2.5rem;
+  clip-path: polygon(22px 0, 100% 0, 100% 100%, 0 100%);
+  border-bottom: 3px solid var(--accent);
+}
+
+.strip__title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(0.9rem, 1.8vw, 1.4rem);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.strip__count {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.strip--bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  margin-left: clamp(1rem, 10vw, 12rem);
+  padding: 1rem clamp(1rem, 4vw, 3rem) 1.1rem 2.75rem;
+  clip-path: polygon(28px 0, 100% 0, 100% 100%, 0 100%);
+  border-top: 3px solid var(--accent);
+}
+
+.strip__about p {
+  margin: 0;
+}
+
+.strip__name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1rem, 1.8vw, 1.4rem);
+  line-height: 1.15;
+}
+
+.strip__name span {
+  margin-left: 0.75rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.strip__desc {
+  margin-top: 0.3rem !important;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.strip__price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.strip__price span {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.strip__price strong {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--gold);
+}
+
+/* ===== Орнаментальная полоса ===== */
+/* Красный узор без фона; жёсткая тень даёт толщину, как у нашивки */
+.band {
+  display: block;
+  width: 100%;
+  height: 44px;
+  color: var(--red);
+  filter: drop-shadow(0 4px 0 rgb(0 0 0 / 0.35));
+}
+
+/* Шапка и кайма лежат поверх большого диска */
+.topbar,
+.band--top {
+  position: relative;
+  z-index: 5;
+}
+
+.topbar {
+  background: var(--ink);
+  padding-bottom: 0.6rem;
+}
+
+
+/* ===== Меню ☰ ===== */
+.burger {
+  position: relative;
+  z-index: 21;
+  flex: none;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  border: 3px solid var(--gold);
+  background: var(--ink);
+  cursor: pointer;
+  transform: skewX(var(--skew));
+  transition: background 0.2s;
+}
+
+.burger span {
+  display: block;
+  width: 1.5rem;
+  height: 3px;
+  background: var(--gold);
+  transition:
+    transform 0.25s,
+    opacity 0.2s;
+}
+
+.burger:hover {
+  background: var(--accent);
+}
+
+.burger--open span:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.burger--open span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger--open span:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+.menu__shade {
+  position: fixed;
+  inset: 0;
+  z-index: 19;
+  background: rgb(3 5 12 / 0.6);
+  }
+
+.menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100vw);
+  padding: 6rem 2rem 2rem;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--accent) 35%, transparent), transparent 60%),
+    var(--ink);
+  border-left: 4px solid var(--gold);
+  overflow-y: auto;
+}
+
+.menu__close {
+  position: absolute;
+  top: clamp(0.75rem, 2vw, 1.5rem);
+  right: clamp(1rem, 4vw, 3rem);
+}
+
+.menu__title {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  transform: skewX(var(--skew));
+  text-shadow: 4px 4px 0 var(--accent);
+}
+
+.menu ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0 0.85rem 1.75rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+}
+
+/* Игровой курсор ▶ у пункта под мышкой */
+.menu__item::before {
+  content: '▶';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  opacity: 0;
+  translate: -6px 0;
+  transition:
+    opacity 0.15s,
+    translate 0.15s;
+}
+
+a.menu__item:hover,
+a.menu__item:focus-visible {
+  color: var(--gold);
+}
+
+a.menu__item:hover::before,
+a.menu__item:focus-visible::before {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Раскрывающиеся пункты «О бренде», «Как заказать» */
+.menu__details summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.menu__details summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu__details summary::after {
+  content: '+';
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.menu__details[open] summary::after {
+  content: '−';
+}
+
+.menu__details[open] summary {
+  color: var(--gold);
+}
+
+.menu__details p {
+  margin: 0.6rem 0 0.6rem 1.75rem;
+  line-height: 1.5;
+  color: var(--paper);
+}
+
+.menu__item--soon {
+  color: var(--muted);
+  cursor: default;
+}
+
+.menu__item small {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid currentColor;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.menu__foot {
+  margin: auto 0 0;
+  padding-top: 2rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ===== Кнопки ===== */
+.btn {
+  cursor: pointer;
+  border: 0;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+}
+
+.btn--order {
+  display: inline-block;
+  padding: 0.9rem 2rem;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  transform: skewX(var(--skew));
+  box-shadow: 6px 6px 0 var(--accent);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.btn--order span {
+  display: inline-block;
+  transform: skewX(calc(var(--skew) * -1));
+}
+
+.btn--order:hover:not(:disabled) {
+  transform: skewX(var(--skew)) translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--accent);
+}
+
+.btn--order:active:not(:disabled) {
+  transform: skewX(var(--skew)) translate(4px, 4px);
+  box-shadow: 0 0 0 var(--accent);
+}
+
+.btn--order:disabled {
+  cursor: not-allowed;
+  background: #3a3f55;
+  color: var(--muted);
+  box-shadow: 6px 6px 0 rgb(0 0 0 / 0.4);
+  animation: none;
+}
+
+@keyframes pulse {
+  50% {
+    filter: brightness(1.15);
+  }
+}
+
+.btn--ghost {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid var(--paper);
+  transform: skewX(var(--skew));
+}
+
+.btn--ghost:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ===== Центральная зона: табличка | барабан | футболка ===== */
+.arena {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  min-height: 0;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+}
+
+/* Табличка с названием стоит в центре большого круга */
+.selector {
+  --hub: 150px;
+  position: absolute;
+  top: 50%;
+  left: calc(clamp(1rem, 4vw, 3rem) + var(--hub));
+  width: 290px;
+  translate: -50% -50%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chevron {
+  width: 3.5rem;
+  height: 3rem;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--gold);
+  filter: drop-shadow(3px 3px 0 var(--accent));
+}
+
+.chevron span {
+  display: inline-block;
+}
+
+.chevron--prev span {
+  animation: bob-up 1s ease-in-out infinite;
+}
+
+.chevron--next span {
+  rotate: 180deg;
+  animation: bob-down 1s ease-in-out infinite;
+}
+
+.chevron:hover {
+  color: var(--paper);
+}
+
+@keyframes bob-up {
+  50% {
+    translate: 0 -6px;
+  }
+}
+
+@keyframes bob-down {
+  50% {
+    translate: 0 6px;
+  }
+}
+
+.plate-wrap {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 7rem;
+}
+
+.plate {
+  grid-area: 1 / 1;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.5rem 1.4rem;
+  background: var(--paper);
+  color: var(--accent);
+  border: 4px solid var(--ink);
+  box-shadow:
+    6px 6px 0 var(--ink),
+    6px 6px 0 3px var(--gold);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.plate--long {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+}
+
+/* Барабан: центр дуги — левый край колонки */
+.wheel {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  --disc: calc(var(--r) * 2 + 300px);
+  --size: clamp(110px, calc(var(--r) * 0.48), 164px);
+  --groove: calc(var(--size) + 24px);
+  position: relative;
+  align-self: stretch;
+  width: calc(var(--r) + 100px);
+  margin-left: 150px;
+}
+
+/* Желобок, по которому катятся значки: ровно по их дуге и чуть шире их самих */
+.wheel__track {
+  --d: calc(var(--r) * 2 + var(--groove));
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 0;
+  width: var(--d);
+  height: var(--d);
+  margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
+  border-radius: 50%;
+  border: var(--groove) solid color-mix(in srgb, var(--accent) 14%, rgb(13 27 61 / 0.1));
+}
+
+.wheel__disc {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--disc);
+  height: var(--disc);
+  margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, rgb(13 27 61 / 0.06) 0 6deg, transparent 6deg 12deg),
+    var(--paper);
+  border: 6px solid var(--ink);
+  box-shadow:
+    0 0 0 4px var(--gold),
+    14px 14px 0 4px rgb(0 0 0 / 0.3);
+}
+
+.medal {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.medal__face {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  /* Эмалевый значок: блик сверху, металлический ободок, тень от толщины */
+  border: 6px solid transparent;
+  background:
+    linear-gradient(170deg, rgb(255 255 255 / 0.35), transparent 45%) padding-box,
+    linear-gradient(var(--accent), var(--accent)) padding-box,
+    conic-gradient(from 30deg, #fff6cf, #b48a26, #ffe9a3, #7d5e15, #f6d775, #a07a1e, #fff6cf) border-box;
+  box-shadow:
+    0 6px 0 rgb(0 0 0 / 0.4),
+    inset 0 -8px 0 rgb(0 0 0 / 0.18);
+  transition: translate 0.2s, box-shadow 0.2s;
+}
+
+/* Выбранный значок приподнят над диском — тень длиннее */
+.medal--active .medal__face {
+  translate: 0 -6px;
+  box-shadow:
+    0 12px 0 rgb(0 0 0 / 0.4),
+    inset 0 -8px 0 rgb(0 0 0 / 0.18);
+}
+
+/* Подвес для мини-вещи: качается от верхней точки, как на крючке */
+.medal__swing {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  transform-origin: 50% 12%;
+}
+
+/* Маленькая футболка в медальоне покачивается, как на вешалке */
+.medal__shirt {
+  width: 74%;
+  transform-origin: 50% 0;
+  animation: sway 3.4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.35));
+}
+
+.medal--active .medal__shirt {
+  animation-duration: 1.4s;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    rotate: -2deg;
+  }
+  50% {
+    rotate: 2deg;
+  }
+}
+
+.medal__face--locked {
+  --accent: #2b2552;
+  color: rgb(255 255 255 / 0.45);
+}
+
+/* ===== Сцена с футболкой ===== */
+.arena__stage {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.stage > * {
+  grid-area: 1 / 1;
+}
+
+/* Точка подвеса — крючок сверху: вокруг неё вещь и качается */
+.stage__drag {
+  cursor: grab;
+  touch-action: pan-y;
+  transform-origin: 50% 0;
+}
+
+.stage__drag:active {
+  cursor: grabbing;
+}
+
+.hanger {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 0;
+}
+
+/* Крючок одного размера у всех вещей, втулка заходит в воротник */
+.hanger__hook {
+  position: relative;
+  z-index: 2;
+  width: 46px;
+  height: 76px;
+  margin-bottom: -16px;
+  overflow: visible;
+  filter: drop-shadow(3px 4px 2px rgb(0 0 0 / 0.45));
+}
+
+.hanger__shirt {
+  position: relative;
+  display: block;
+  width: min(78vmin, 700px, 44vw);
+  max-height: 64vh;
+  object-fit: contain;
+  user-select: none;
+  /* Тень на стене за вешалкой: смещена, как от лампы сверху-слева */
+  filter: drop-shadow(18px 24px 10px rgb(0 0 0 / 0.38));
+}
+
+.hanger__shirt--locked {
+  filter: brightness(0) drop-shadow(18px 24px 10px rgb(0 0 0 / 0.38));
+  opacity: 0.85;
+}
+
+.hanger__mystery {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  translate: -50% -50%;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(5rem, 12vw, 9rem);
+  color: var(--gold);
+  text-shadow: 6px 6px 0 var(--accent);
+}
+
+
+/* ===== Экран «выбрано» ===== */
+.confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2rem;
+  padding: 1rem;
+  background: rgb(7 11 26 / 0.88);
+  }
+
+.confirm__flash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 34vh;
+  margin-top: -24vh;
+  background: linear-gradient(to bottom, var(--gold) 0 6px, var(--accent) 6px calc(100% - 6px), var(--gold) 0);
+  transform-origin: left;
+  rotate: -6deg;
+  z-index: -1;
+}
+
+.confirm__shout {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(4rem, 16vw, 12rem);
+  line-height: 1;
+  color: var(--paper);
+  text-shadow:
+    6px 6px 0 var(--ink),
+    10px 10px 0 var(--gold);
+}
+
+.confirm__panel {
+  max-width: 440px;
+  padding: 1.5rem;
+  text-align: center;
+  background: var(--ink);
+  border: 2px solid var(--gold);
+}
+
+.confirm__panel h2 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.confirm__panel p {
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+
+
+/* Кнопка «повернуть» для вещей с принтом на спине */
+.flip {
+  position: absolute;
+  bottom: 6%;
+  left: 50%;
+  z-index: 2;
+  translate: -50% 0;
+  padding: 0.5rem 1.1rem;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition:
+    translate 0.1s,
+    box-shadow 0.1s;
+}
+
+.flip:active {
+  translate: calc(-50% + 3px) 3px;
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.hanger {
+  perspective: 900px;
+  will-change: transform;
+}
+
+/* ===== Лупа над вещью ===== */
+.garment {
+  position: relative;
+  display: block;
+}
+
+/* ===== Кнопка звука ===== */
+.mute {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  border: 3px solid var(--gold);
+  background: var(--ink);
+  cursor: pointer;
+  transform: skewX(var(--skew));
+}
+
+.mute svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: skewX(calc(var(--skew) * -1));
+}
+
+.mute svg path:first-child {
+  fill: var(--gold);
+}
+
+.mute--off {
+  border-color: var(--muted);
+}
+
+.mute--off svg {
+  stroke: var(--muted);
+}
+
+.mute--off svg path:first-child {
+  fill: var(--muted);
+}
+
+.mute:hover {
+  background: var(--accent);
+}
+
+/* ===== Таблица размеров в меню ===== */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sizes {
+  margin: 0.25rem 0 1rem;
+}
+
+.sizes__note {
+  margin: 0 0 0.9rem !important;
+  font-size: 0.85rem;
+  color: var(--muted) !important;
+}
+
+.sizes__legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sizes__shirt {
+  flex: none;
+  width: 120px;
+  height: 100px;
+}
+
+.sizes__outline {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.sizes__line {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 2;
+  stroke-dasharray: 3 2;
+}
+
+.sizes__shirt text {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 10px;
+  fill: var(--red);
+}
+
+.sizes__legend dl {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.sizes__legend dl div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sizes__legend dt {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.sizes__legend dd {
+  margin: 0;
+}
+
+.sizes__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 6px 6px 0 rgb(0 0 0 / 0.4);
+}
+
+.sizes__table th,
+.sizes__table td {
+  padding: 0.45rem 0.4rem;
+  text-align: center;
+  border-bottom: 1px solid rgb(7 11 26 / 0.12);
+}
+
+.sizes__table thead th {
+  background: var(--ink);
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-weight: 900;
+  border-bottom: 3px solid var(--red);
+}
+
+.sizes__table tbody th {
+  text-align: left;
+  padding-left: 0.7rem;
+}
+
+.sizes__table tbody th b {
+  font-family: var(--font-display);
+  font-weight: 900;
+}
+
+.sizes__table tbody th small {
+  margin-left: 0.35rem;
+  font-size: 0.7rem;
+  color: rgb(7 11 26 / 0.55);
+}
+
+.sizes__table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 22%, var(--paper));
+}
+
+.sizes__unit {
+  margin: 0.6rem 0 0 !important;
+  font-size: 0.75rem;
+  color: var(--muted) !important;
+}
+
+/* ===== Бирка с ценой на вешалке ===== */
+.pricetag {
+  position: absolute;
+  top: 16%;
+  right: 4%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 1.4rem 0.9rem 0.7rem;
+  background: #c9a46c; /* крафт-картон */
+  color: #2a1d0c;
+  clip-path: polygon(22% 0, 78% 0, 100% 16%, 100% 100%, 0 100%, 0 16%);
+  transform-origin: 50% 0;
+  rotate: 8deg;
+  filter: drop-shadow(6px 8px 0 rgb(0 0 0 / 0.3));
+  animation: tag-sway 3.2s ease-in-out infinite;
+}
+
+/* дырка под верёвочку */
+.pricetag::before {
+  content: '';
+  position: absolute;
+  top: 0.45rem;
+  left: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-left: -0.275rem;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: inset 0 0 0 2px #a8844e;
+}
+
+.pricetag__brand {
+  font-family: var(--font-logo);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+}
+
+.pricetag__price {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  white-space: nowrap;
+}
+
+@keyframes tag-sway {
+  50% {
+    rotate: 2deg;
+  }
+}
+
+/* ===== Телефоны и планшеты ===== */
+/* Всё помещается в один экран: страница не прокручивается, пальцем листаются вещи */
+@media (max-width: 860px) {
+  html,
+  body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .screen {
+    display: flex;
+    flex-direction: column;
+    height: 100svh;
+    min-height: 0;
+  }
+
+  /* На узком экране бирка закрывает принт, а цена и так есть в полосе снизу */
+  .pricetag {
+    display: none;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem 0.4rem;
+  }
+
+  .logo {
+    font-size: 1.8rem;
+  }
+
+  .mute {
+    margin-left: auto;
+  }
+
+  .mute,
+  .burger {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+
+  .strip--top {
+    order: 2;
+    flex-basis: 100%;
+    padding: 0.4rem 1rem 0.4rem 1.5rem;
+  }
+
+  .strip__title {
+    font-size: 0.85rem;
+  }
+
+  /* Порядок: вещь → дуга значков → табличка с названием */
+  .arena {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .arena__stage {
+    order: 1;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    height: auto;
+  }
+
+  .stage__drag {
+    touch-action: none;
+  }
+
+  .hanger__shirt {
+    width: min(86vw, 420px);
+    max-height: max(150px, calc(100svh - 470px));
+  }
+
+  /* Дуга от края до края экрана */
+  .wheel--h {
+    order: 2;
+    flex: none;
+    width: 100%;
+    height: 150px;
+    touch-action: none;
+  }
+
+  /* На телефоне без диска и желобка — только значки по дуге, ничего не обрезается */
+  .wheel--h .wheel__disc,
+  .wheel--h .wheel__track {
+    display: none;
+  }
+
+  .wheel--h .medal {
+    --size: 66px;
+    top: 42px;
+    left: 50%;
+  }
+
+
+  .selector {
+    position: static;
+    order: 3;
+    flex: none;
+    flex-direction: row;
+    width: 100%;
+    gap: 0.25rem;
+    padding: 0 0.5rem;
+    translate: none;
+  }
+
+  .wheel {
+    margin-left: 0;
+  }
+
+  .chevron--prev span {
+    rotate: -90deg;
+    animation-name: bob-left;
+  }
+
+  .chevron--next span {
+    rotate: 90deg;
+    animation-name: bob-right;
+  }
+
+  .plate-wrap {
+    flex: 1;
+    min-height: 3.6rem;
+  }
+
+  .plate {
+    font-size: 1.35rem;
+    padding: 0.35rem 1rem;
+  }
+
+  .plate--long {
+    font-size: 0.9rem;
+  }
+
+  /* Снизу только цена и кнопка: название уже на табличке */
+  .strip--bottom {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    margin: 0.4rem 0 0;
+    padding: 0.7rem 1rem calc(0.8rem + env(safe-area-inset-bottom)) 1.5rem;
+    clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .strip__about {
+    display: none;
+  }
+
+  .strip__price {
+    align-items: flex-start;
+  }
+
+  .btn--order {
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+}
+
+@keyframes bob-left {
+  50% {
+    translate: -6px 0;
+  }
+}
+
+@keyframes bob-right {
+  50% {
+    translate: 6px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
