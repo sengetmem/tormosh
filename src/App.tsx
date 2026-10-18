@@ -176,7 +176,7 @@ export default function App() {
             </button>
           </div>
 
-          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} drum={drum.id} />
+          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} drum={drum} />
 
           <div className="arena__stage">
             <Stage slot={slot} stepKey={cursor} direction={direction} onSwipe={step} tag={priceText} />

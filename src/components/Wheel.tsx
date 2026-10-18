@@ -1,5 +1,6 @@
 import { AnimatePresence, motion, type PanInfo } from 'motion/react'
 import { useRef } from 'react'
+import type { Drum } from '../data/drums'
 import { slotAt, thumbOf, type Slot } from '../data/products'
 import { Kuskar, OrnamentRing } from './Ornament'
 import { ROSETTE_PATH } from './rosettePath'
@@ -15,7 +16,7 @@ type WheelProps = {
   /** Куда повернули барабан: 1 или -1. Вещи в значках качаются по инерции в обратную сторону */
   direction: number
   /** Рисунок на барабане */
-  drum: 'yurt' | 'rosette'
+  drum: Drum
 }
 
 const VISIBLE = 2
@@ -72,12 +73,12 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction, drum }: 
     >
       {/* Барабан поворачивается вместе со значками */}
       <motion.div
-        className={`wheel__disc wheel__disc--${drum}`}
+        className={`wheel__disc wheel__disc--${drum.look}${drum.tint ? '' : ' wheel__disc--plain'}`}
         aria-hidden="true"
-        animate={{ rotate: -cursor * (vertical ? STEP : STEP_H) }}
+        animate={{ rotate: drum.spin ? -cursor * (vertical ? STEP : STEP_H) : 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 28 }}
       >
-        {drum === 'rosette' && (
+        {drum.look === 'rosette' && (
           <svg className="wheel__rosette" viewBox="0 0 1000 1000">
             <path d={ROSETTE_PATH} fill="currentColor" />
           </svg>

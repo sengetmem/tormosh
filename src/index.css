@@ -640,6 +640,19 @@ a.menu__item:focus-visible::before {
   background: rgb(var(--accent-rgb) / 0.12);
 }
 
+/* Без цвета вещи: розетка одним спокойным цветом, юрта затемнена и не спорит с вещью */
+.wheel__disc--plain::after {
+  background: none;
+}
+
+.wheel__disc--rosette.wheel__disc--plain {
+  color: #1c2c55;
+}
+
+.wheel__disc--yurt.wheel__disc--plain::after {
+  background: rgb(0 8 20 / 0.55);
+}
+
 .wheel__rosette,
 .wheel__ring {
   position: absolute;
