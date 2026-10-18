@@ -7,11 +7,11 @@ import { OrnamentBand } from './components/Ornament'
 import { Stage } from './components/Stage'
 import { STEP_H, Wheel } from './components/Wheel'
 import { orderLink } from './config'
+import { paletteFromUrl, showPaletteSwitcher } from './data/palettes'
 import { LOCKED_ACCENT, slotAt, slots } from './data/products'
+import { PaletteSwitcher } from './components/PaletteSwitcher'
 import { useMediaQuery, useViewport } from './hooks/useMediaQuery'
 import { chime, setMuted, tick, useMuted } from './sound'
-
-const BG_BASE = '#0a0f22'
 
 const hexToRgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
 
@@ -45,7 +45,9 @@ export default function App() {
 
   const slot = slotAt(cursor)
   const product = slot.kind === 'product' ? slot.product : null
-  const accent = product?.accent ?? LOCKED_ACCENT
+  const [palette, setPalette] = useState(paletteFromUrl)
+  const accentOf = useCallback((id: string) => palette.accents[id] ?? LOCKED_ACCENT, [palette])
+  const accent = product ? accentOf(product.id) : palette.locked
   const position = slots.indexOf(slot) + 1
 
   // Ссылку на вещь могут открыть, когда сайт уже открыт, — переключаемся на неё
@@ -68,8 +70,9 @@ export default function App() {
     // часть мобильных браузеров его не знает и показывает вместо фона почти чёрный
     const [r, g, b] = hexToRgb(accent)
     root.setProperty('--accent-rgb', `${r} ${g} ${b}`)
-    root.setProperty('--accent-bg', mixHex(accent, BG_BASE, 0.42))
-  }, [accent])
+    root.setProperty('--accent-bg', mixHex(accent, palette.bgBase, palette.bgShare))
+    for (const [name, value] of Object.entries(palette.vars)) root.setProperty(name, value)
+  }, [accent, palette])
 
   useEffect(() => {
     history.replaceState(null, '', product ? `#${product.id}` : ' ')
@@ -175,7 +178,7 @@ export default function App() {
             </button>
           </div>
 
-          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} />
+          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} accentOf={accentOf} />
 
           <div className="arena__stage">
             <Stage slot={slot} stepKey={cursor} direction={direction} onSwipe={step} tag={priceText} />
@@ -208,6 +211,8 @@ export default function App() {
         </section>
 
       </div>
+
+      {showPaletteSwitcher() && <PaletteSwitcher current={palette} onPick={setPalette} />}
 
       <AnimatePresence>{confirmed && product && <ConfirmOverlay product={product} onClose={closeConfirm} />}</AnimatePresence>
     </div>

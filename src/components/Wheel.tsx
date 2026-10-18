@@ -13,6 +13,8 @@ type WheelProps = {
   radius: number
   /** Куда повернули барабан: 1 или -1. Вещи в значках качаются по инерции в обратную сторону */
   direction: number
+  /** Цвет значка для вещи — из выбранной палитры */
+  accentOf: (id: string) => string
 }
 
 const VISIBLE = 2
@@ -22,7 +24,7 @@ const PAN_STEP = 90 // px протяжки на один шаг
 const FLING_SPEED = 900 // px/с рывка на одну вещь по инерции
 
 /** Барабан с медальонами, как в меню выбора персонажа Sonic Advance */
-export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelProps) {
+export function Wheel({ cursor, onPick, vertical, radius: r, direction, accentOf }: WheelProps) {
   const place = (offset: number) => {
     const a = (offset * (vertical ? STEP : STEP_H) * Math.PI) / 180
     const near = Math.abs(offset)
@@ -92,7 +94,7 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
             aria-hidden={k !== cursor}
             aria-label={label(slotAt(k))}
           >
-            <Medal slot={slotAt(k)} turn={cursor} kick={-direction} />
+            <Medal slot={slotAt(k)} turn={cursor} kick={-direction} accentOf={accentOf} />
           </motion.button>
         ))}
       </AnimatePresence>
@@ -104,7 +106,17 @@ function label(slot: Slot) {
   return slot.kind === 'product' ? slot.product.name : 'Скоро'
 }
 
-function Medal({ slot, turn, kick }: { slot: Slot; turn: number; kick: number }) {
+function Medal({
+  slot,
+  turn,
+  kick,
+  accentOf,
+}: {
+  slot: Slot
+  turn: number
+  kick: number
+  accentOf: (id: string) => string
+}) {
   if (slot.kind === 'locked') {
     return (
       <span className="medal__face medal__face--locked">
@@ -113,7 +125,7 @@ function Medal({ slot, turn, kick }: { slot: Slot; turn: number; kick: number })
     )
   }
   return (
-    <span className="medal__face" style={{ ['--accent' as string]: slot.product.accent }}>
+    <span className="medal__face" style={{ ['--accent' as string]: accentOf(slot.product.id) }}>
       {/* Ключ меняется на каждом повороте — качание запускается заново */}
       <motion.span
         key={turn}

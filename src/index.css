@@ -135,7 +135,7 @@ body::after {
 
 /* ===== Чёрные полосы (как в меню Sonic Advance) ===== */
 .strip {
-  background: rgb(3 5 12 / 0.92);
+  background: var(--ink);
   color: var(--paper);
 }
 
@@ -1054,6 +1054,54 @@ a.menu__item:focus-visible::before {
   margin: 0.6rem 0 0 !important;
   font-size: 0.75rem;
   color: var(--muted) !important;
+}
+
+/* ===== Временная панель сравнения палитр (?pal в адресе) ===== */
+/* Лежит поверх каймы: она декоративная, а логотип и кнопки остаются открыты */
+.palettes {
+  position: fixed;
+  top: 104px;
+  left: 50%;
+  z-index: 50;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  translate: -50% 0;
+  background: rgb(0 0 0 / 0.75);
+  border: 1px solid rgb(255 255 255 / 0.2);
+  max-width: calc(100vw - 12px);
+  overflow-x: auto;
+}
+
+.palettes__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  background: none;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.palettes__item--on {
+  border-color: #fff;
+  background: rgb(255 255 255 / 0.12);
+}
+
+.palettes__dots {
+  display: flex;
+}
+
+.palettes__dots i {
+  width: 9px;
+  height: 9px;
+  margin-left: -2px;
+  border-radius: 50%;
+  border: 1px solid rgb(0 0 0 / 0.5);
 }
 
 /* ===== Бирка с ценой на вешалке ===== */
