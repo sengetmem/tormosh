@@ -68,7 +68,7 @@ kbd {
   height: 100svh;
   min-height: 640px;
   display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto 1fr auto;
   grid-template-columns: minmax(0, 1fr);
   overflow: hidden;
   isolation: isolate;
@@ -614,46 +614,15 @@ a.menu__item:focus-visible::before {
   height: var(--disc);
   margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
   border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, rgb(13 27 61 / 0.06) 0 6deg, transparent 6deg 12deg),
+    var(--paper);
   border: 6px solid var(--ink);
   box-shadow: 14px 14px 0 4px rgb(0 0 0 / 0.3);
-  /* Свой слой: кайма и тонировка не вылезают поверх нижней полосы */
+  /* Свой слой: кайма не вылезает поверх нижней полосы */
   isolation: isolate;
 }
 
-/* Купол юрты сверху: войлок, уыҡ (жерди) и шаңыраҡ в центре. Фото приглушено скриптом drum.mjs */
-.wheel__disc--yurt {
-  background: url('/drum/yurt.webp') center / cover, #8d8a84;
-}
-
-/* Розетка: узор цветом вещи по тёмному войлоку */
-.wheel__disc--rosette {
-  background: var(--navy);
-  color: rgb(var(--accent-rgb) / 0.5);
-}
-
-/* Тонировка в цвет вещи — чтобы барабан не выпадал из экрана */
-.wheel__disc::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: rgb(var(--accent-rgb) / 0.12);
-}
-
-/* Без цвета вещи: розетка одним спокойным цветом, юрта затемнена и не спорит с вещью */
-.wheel__disc--plain::after {
-  background: none;
-}
-
-.wheel__disc--rosette.wheel__disc--plain {
-  color: #1c2c55;
-}
-
-.wheel__disc--yurt.wheel__disc--plain::after {
-  background: rgb(0 8 20 / 0.55);
-}
-
-.wheel__rosette,
 .wheel__ring {
   position: absolute;
   inset: 0;
@@ -1088,42 +1057,6 @@ a.menu__item:focus-visible::before {
   font-size: 0.75rem;
   color: var(--muted) !important;
 }
-
-/* ===== Временная панель сравнения барабанов (?drum в адресе) ===== */
-.variants {
-  position: fixed;
-  top: 104px;
-  left: 50%;
-  z-index: 50;
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  translate: -50% 0;
-  background: rgb(0 0 0 / 0.75);
-  border: 1px solid rgb(255 255 255 / 0.2);
-  max-width: calc(100vw - 12px);
-  overflow-x: auto;
-}
-
-.variants__item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 9px;
-  border: 1px solid transparent;
-  background: none;
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.variants__item--on {
-  border-color: #fff;
-  background: rgb(255 255 255 / 0.12);
-}
-
 
 /* ===== Бирка с ценой на вешалке ===== */
 .pricetag {

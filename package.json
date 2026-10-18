@@ -8,8 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "cutout": "node scripts/cutout.mjs",
-    "drum": "node scripts/drum.mjs"
+    "cutout": "node scripts/cutout.mjs"
   },
   "dependencies": {
     "motion": "^14.3.0",

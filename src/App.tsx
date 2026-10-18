@@ -6,9 +6,7 @@ import { Menu } from './components/Menu'
 import { Stage } from './components/Stage'
 import { STEP_H, Wheel } from './components/Wheel'
 import { orderLink } from './config'
-import { drumFromUrl, showDrumSwitcher } from './data/drums'
 import { LOCKED_ACCENT, slotAt, slots } from './data/products'
-import { DrumSwitcher } from './components/DrumSwitcher'
 import { useMediaQuery, useViewport } from './hooks/useMediaQuery'
 import { chime, setMuted, tick, useMuted } from './sound'
 
@@ -48,7 +46,6 @@ export default function App() {
   const slot = slotAt(cursor)
   const product = slot.kind === 'product' ? slot.product : null
   const accent = product ? product.accent : LOCKED_ACCENT
-  const [drum, setDrum] = useState(drumFromUrl)
   const position = slots.indexOf(slot) + 1
 
   // Ссылку на вещь могут открыть, когда сайт уже открыт, — переключаемся на неё
@@ -176,7 +173,7 @@ export default function App() {
             </button>
           </div>
 
-          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} drum={drum} />
+          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} />
 
           <div className="arena__stage">
             <Stage slot={slot} stepKey={cursor} direction={direction} onSwipe={step} tag={priceText} />
@@ -209,8 +206,6 @@ export default function App() {
         </section>
 
       </div>
-
-      {showDrumSwitcher() && <DrumSwitcher current={drum} onPick={setDrum} />}
 
       <AnimatePresence>{confirmed && product && <ConfirmOverlay product={product} onClose={closeConfirm} />}</AnimatePresence>
     </div>
