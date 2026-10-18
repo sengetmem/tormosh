@@ -1,7 +1,8 @@
 import { AnimatePresence, motion, type PanInfo } from 'motion/react'
 import { useRef } from 'react'
-import { slotAt, thumbOf, type Slot } from '../data/products'
+import { slotAt, slots, thumbOf, type Slot } from '../data/products'
 import { Kuskar, OrnamentRing } from './Ornament'
+import { YurtDome } from './YurtDome'
 
 type WheelProps = {
   /** Позиция курсора — растёт без ограничений, слот берём по модулю */
@@ -67,13 +68,15 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
       onPan={onPan}
       onPanEnd={onPanEnd}
     >
-      {/* Купол юрты поворачивается вместе со значками */}
+      {/* Купол юрты: жердей столько же, сколько вещей, и на каждую вещь — поворот на одну жердь.
+          Полный круг барабана = весь каталог. Пружина без перелёта — купол не качается туда-сюда */}
       <motion.div
         className="wheel__disc"
         aria-hidden="true"
-        animate={{ rotate: -cursor * (vertical ? STEP : STEP_H) }}
-        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+        animate={{ rotate: (-cursor * 360) / slots.length }}
+        transition={{ type: 'spring', stiffness: 140, damping: 26 }}
       >
+        <YurtDome poles={slots.length} phase={vertical ? 0 : -90} />
         <OrnamentRing className="wheel__ring" />
       </motion.div>
       <div className="wheel__track" aria-hidden="true" />

@@ -614,8 +614,7 @@ a.menu__item:focus-visible::before {
   height: var(--disc);
   margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
   border-radius: 50%;
-  /* Купол юрты сверху: войлок, уыҡ (жерди) и шаңыраҡ. Фото приглушено скриптом drum.mjs */
-  background: url('/drum/yurt.webp') center / cover, #8d8a84;
+  background: #cdc5b6;
   border: 6px solid var(--ink);
   box-shadow: 14px 14px 0 4px rgb(0 0 0 / 0.3);
   /* Свой слой: кайма не вылезает поверх нижней полосы */
@@ -631,11 +630,16 @@ a.menu__item:focus-visible::before {
   background: linear-gradient(rgb(var(--accent-rgb) / 0.1), rgb(var(--accent-rgb) / 0.1)), rgb(0 8 20 / 0.5);
 }
 
+.yurt,
 .wheel__ring {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.yurt {
+  z-index: -1;
 }
 
 /* Кайма по краю барабана — вместо прежней жёлтой полоски */
