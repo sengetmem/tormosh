@@ -1,5 +1,5 @@
-import { AnimatePresence, motion, type PanInfo } from 'motion/react'
-import { useRef } from 'react'
+import { motion, useSpring, useTransform, type MotionValue, type PanInfo } from 'motion/react'
+import { useEffect, useRef } from 'react'
 import { slotAt, slots, thumbOf, type Slot } from '../data/products'
 import { Kuskar, OrnamentRing } from './Ornament'
 import { YurtDome } from './YurtDome'
@@ -32,16 +32,14 @@ const FLING_SPEED = 900 // px/с рывка на одну вещь по инер
 
 /** Барабан с медальонами, как в меню выбора персонажа Sonic Advance */
 export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelProps) {
-  const place = (offset: number) => {
-    const a = (offset * stepOf(vertical) * Math.PI) / 180
-    const near = Math.abs(offset)
-    return {
-      x: r * (vertical ? Math.cos(a) : Math.sin(a)),
-      y: r * (vertical ? Math.sin(a) : 1 - Math.cos(a)),
-      scale: near < 0.5 ? 1 : 0.68,
-      opacity: near < 0.5 ? 1 : near <= 1 ? 0.9 : near <= 2 ? 0.4 : 0,
-    }
-  }
+  // Одна пружина на весь барабан: из неё считаются и поворот юрты, и места значков.
+  // Значки едут строго по дуге, а не по прямой, — поэтому юрта и значки движутся как одно целое
+  const pos = useSpring(cursor, { stiffness: 260, damping: 28 })
+  useEffect(() => {
+    pos.set(cursor)
+  }, [cursor, pos])
+  const step = stepOf(vertical)
+  const rotate = useTransform(pos, (p) => -p * step)
 
   // Круг можно крутить, зажав мышью или пальцем: каждые PAN_STEP пикселей — шаг,
   // а резкий рывок в конце докручивает ещё на пару вещей по инерции
@@ -66,7 +64,8 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
     if (fling) onPick(-fling)
   }
 
-  const keys = Array.from({ length: VISIBLE * 2 + 1 }, (_, i) => cursor - VISIBLE + i)
+  // На один значок больше с каждой стороны: уходящий значок успевает плавно погаснуть
+  const keys = Array.from({ length: VISIBLE * 2 + 3 }, (_, i) => cursor - VISIBLE - 1 + i)
 
   return (
     <motion.div
@@ -76,45 +75,73 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
       onPan={onPan}
       onPanEnd={onPanEnd}
     >
-      {/* Купол юрты крутится ровно как значки: тот же шаг и та же пружина, жерди — по шагу значков */}
-      <motion.div
-        className="wheel__disc"
-        aria-hidden="true"
-        animate={{ rotate: -cursor * stepOf(vertical) }}
-        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
-      >
-        <YurtDome poles={Math.round(360 / stepOf(vertical))} phase={vertical ? 0 : -90} />
+      {/* Купол юрты крутится вместе со значками, жерди — по шагу значков */}
+      <motion.div className="wheel__disc" aria-hidden="true" style={{ rotate }}>
+        <YurtDome poles={Math.round(360 / step)} phase={vertical ? 0 : -90} />
         <OrnamentRing className="wheel__ring" />
       </motion.div>
       <div className="wheel__track" aria-hidden="true" />
-      <AnimatePresence initial={false} custom={cursor}>
-        {keys.map((k) => (
-          <motion.button
-            key={k}
-            type="button"
-            className={`medal${k === cursor ? ' medal--active' : ''}`}
-            custom={cursor}
-            variants={{
-              enter: (c: number) => place((k - c) * 1.5),
-              at: (c: number) => place(k - c),
-              exit: (c: number) => place(k - c),
-            }}
-            initial="enter"
-            animate="at"
-            exit="exit"
-            transition={{ type: 'spring', stiffness: 260, damping: 28 }}
-            onClick={() => {
-              if (Date.now() - panEndedAt.current > 250) onPick(k - cursor)
-            }}
-            tabIndex={-1}
-            aria-hidden={k !== cursor}
-            aria-label={label(slotAt(k))}
-          >
-            <Medal slot={slotAt(k)} turn={cursor} kick={-direction} />
-          </motion.button>
-        ))}
-      </AnimatePresence>
+      {keys.map((k) => (
+        <WheelMedal
+          key={k}
+          k={k}
+          pos={pos}
+          active={k === cursor}
+          vertical={vertical}
+          r={r}
+          onClick={() => {
+            if (Date.now() - panEndedAt.current > 250) onPick(k - cursor)
+          }}
+        >
+          <Medal slot={slotAt(k)} turn={cursor} kick={-direction} />
+        </WheelMedal>
+      ))}
     </motion.div>
+  )
+}
+
+/** Значок на дуге: место считается из общей пружины барабана */
+function WheelMedal({
+  k,
+  pos,
+  active,
+  vertical,
+  r,
+  onClick,
+  children,
+}: {
+  k: number
+  pos: MotionValue<number>
+  active: boolean
+  vertical: boolean
+  r: number
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  const step = stepOf(vertical)
+  const angle = (p: number) => ((k - p) * step * Math.PI) / 180
+  const near = (p: number) => Math.abs(k - p)
+  const x = useTransform(pos, (p) => r * (vertical ? Math.cos(angle(p)) : Math.sin(angle(p))))
+  const y = useTransform(pos, (p) => r * (vertical ? Math.sin(angle(p)) : 1 - Math.cos(angle(p))))
+  const scale = useTransform(pos, (p) => 1 - 0.32 * Math.min(1, near(p)))
+  // Яркость плавно падает к краю: выбранный 1, соседи 0.9, крайние 0.4, дальше — ноль
+  const opacity = useTransform(pos, (p) => {
+    const n = near(p)
+    return n <= 1 ? 1 - 0.1 * n : n <= 2 ? 0.9 - 0.5 * (n - 1) : Math.max(0, 0.4 * (3 - n))
+  })
+  const slot = slotAt(k)
+  return (
+    <motion.button
+      type="button"
+      className={`medal${active ? ' medal--active' : ''}`}
+      style={{ x, y, scale, opacity }}
+      onClick={onClick}
+      tabIndex={-1}
+      aria-hidden={!active}
+      aria-label={label(slot)}
+    >
+      {children}
+    </motion.button>
   )
 }
 
