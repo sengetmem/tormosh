@@ -625,7 +625,7 @@ a.menu__item:focus-visible::before {
 }
 
 /* Затемнение с лёгким оттенком вещи: юрта — фон, а не главное на экране */
-.wheel__disc::after {
+.wheel__disc--yurt::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -643,6 +643,39 @@ a.menu__item:focus-visible::before {
 
 .yurt {
   z-index: -1;
+}
+
+/* Медальон в своих цветах */
+.medallion__bg {
+  fill: #020a24;
+}
+.medallion__blue {
+  fill: #6ca6fa;
+}
+.medallion__purple {
+  fill: #8c32eb;
+}
+.medallion__gold {
+  fill: #fcc103;
+}
+
+/* Медальон в цветах первого барабана: бумага в лучах, бледный узор, тёмно-синий обод, золотые лучи */
+.wheel__disc--medallion-drum {
+  background:
+    repeating-conic-gradient(from 0deg, rgb(13 27 61 / 0.06) 0 6deg, transparent 6deg 12deg),
+    #f4efe6;
+}
+.wheel__disc--medallion-drum .medallion__bg {
+  fill: none;
+}
+.wheel__disc--medallion-drum .medallion__blue {
+  fill: rgb(13 27 61 / 0.22);
+}
+.wheel__disc--medallion-drum .medallion__purple {
+  fill: #0d1b3d;
+}
+.wheel__disc--medallion-drum .medallion__gold {
+  fill: #f6c445;
 }
 
 /* Кайма по краю барабана — вместо прежней жёлтой полоски */
@@ -1210,7 +1243,7 @@ a.menu__item:focus-visible::before {
     order: 2;
     flex: none;
     width: 100%;
-    height: 150px;
+    height: 172px;
     touch-action: none;
   }
 
@@ -1222,7 +1255,8 @@ a.menu__item:focus-visible::before {
 
   .wheel--h .wheel__disc {
     --disc: calc(var(--r) * 2 + 120px);
-    top: calc(42px + var(--r));
+    /* Край круга с каймой целиком внутри полосы: верх диска на 6px ниже её края */
+    top: calc(var(--medal-top) + var(--r));
     left: 50%;
     border-width: 4px;
     box-shadow: none;
@@ -1232,9 +1266,13 @@ a.menu__item:focus-visible::before {
     display: none;
   }
 
+  .wheel--h {
+    --medal-top: 66px;
+  }
+
   .wheel--h .medal {
     --size: 66px;
-    top: 42px;
+    top: var(--medal-top);
     left: 50%;
   }
 

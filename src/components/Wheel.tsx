@@ -2,6 +2,8 @@ import { motion, useSpring, useTransform, type MotionValue, type PanInfo } from 
 import { useEffect, useRef } from 'react'
 import { slotAt, slots, thumbOf, type Slot } from '../data/products'
 import { Kuskar, OrnamentRing } from './Ornament'
+import { DRUM_LOOK } from '../data/drums'
+import { Medallion } from './Medallion'
 import { YurtDome } from './YurtDome'
 
 type WheelProps = {
@@ -76,8 +78,12 @@ export function Wheel({ cursor, onPick, vertical, radius: r, direction }: WheelP
       onPanEnd={onPanEnd}
     >
       {/* Купол юрты крутится вместе со значками, жерди — по шагу значков */}
-      <motion.div className="wheel__disc" aria-hidden="true" style={{ rotate }}>
-        <YurtDome poles={Math.round(360 / step)} phase={vertical ? 0 : -90} />
+      <motion.div className={`wheel__disc wheel__disc--${DRUM_LOOK}`} aria-hidden="true" style={{ rotate }}>
+        {DRUM_LOOK === 'yurt' ? (
+          <YurtDome poles={Math.round(360 / step)} phase={vertical ? 0 : -90} />
+        ) : (
+          <Medallion />
+        )}
         <OrnamentRing className="wheel__ring" />
       </motion.div>
       <div className="wheel__track" aria-hidden="true" />
