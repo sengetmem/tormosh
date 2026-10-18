@@ -1159,12 +1159,14 @@ a.menu__item:focus-visible::before {
   }
 
   /* Порядок: вещь → дуга значков → табличка с названием */
+  /* Вся зона с вещью ловит свайпы сама — браузер ничего не прокручивает */
   .arena {
     display: flex;
     flex-direction: column;
     flex: 1;
     min-height: 0;
     padding: 0;
+    touch-action: none;
   }
 
   .arena__stage {
