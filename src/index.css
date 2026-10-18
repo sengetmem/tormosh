@@ -1065,6 +1065,37 @@ a.menu__item:focus-visible::before {
   color: var(--muted) !important;
 }
 
+/* ===== Временная панель сравнения вариантов (?border в адресе) ===== */
+.variants {
+  position: fixed;
+  top: 104px;
+  left: 50%;
+  z-index: 50;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  translate: -50% 0;
+  background: rgb(0 0 0 / 0.8);
+  border: 1px solid rgb(255 255 255 / 0.25);
+  max-width: calc(100vw - 12px);
+}
+
+.variants__item {
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  background: none;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.variants__item--on {
+  border-color: #fff;
+  background: rgb(255 255 255 / 0.15);
+}
+
 /* ===== Бирка с ценой на вешалке ===== */
 .pricetag {
   position: absolute;

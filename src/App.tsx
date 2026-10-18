@@ -31,9 +31,24 @@ const MEDAL_H = 66
 const BG_BASE = '#000814'
 const BG_SHARE = 0.62
 
+// Временно, на выбор владельца: где стоят завитки каймы медальона. Панель видна с ?border в адресе
+type Border = 'rays' | 'between'
+const BORDERS: [Border, string][] = [
+  ['rays', 'Завитки на лучах'],
+  ['between', 'Завитки между лучами'],
+]
+const borderParam = new URLSearchParams(window.location.search).get('border')
+
 export default function App() {
   const [[cursor, direction], setState] = useState<[number, number]>(() => [cursorFromHash(), 1])
   const [confirmed, setConfirmed] = useState(false)
+  const [border, setBorder] = useState<Border>(borderParam === 'between' ? 'between' : 'rays')
+  const pickBorder = (b: Border) => {
+    setBorder(b)
+    const url = new URL(window.location.href)
+    url.searchParams.set('border', b)
+    history.replaceState(null, '', url)
+  }
   const muted = useMuted()
   const vertical = !useMediaQuery('(max-width: 860px)')
   const { w, h } = useViewport()
@@ -173,7 +188,7 @@ export default function App() {
             </button>
           </div>
 
-          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} />
+          <Wheel cursor={cursor} onPick={step} vertical={vertical} radius={radius} direction={direction} border={border} />
 
           <div className="arena__stage">
             <Stage slot={slot} stepKey={cursor} direction={direction} onSwipe={step} tag={priceText} />
@@ -206,6 +221,23 @@ export default function App() {
         </section>
 
       </div>
+
+      {borderParam !== null && (
+        <div className="variants" role="radiogroup" aria-label="Завитки каймы">
+          {BORDERS.map(([id, name]) => (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={border === id}
+              className={`variants__item${border === id ? ' variants__item--on' : ''}`}
+              onClick={() => pickBorder(id)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      )}
 
       <AnimatePresence>{confirmed && product && <ConfirmOverlay product={product} onClose={closeConfirm} />}</AnimatePresence>
     </div>
