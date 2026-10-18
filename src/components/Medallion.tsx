@@ -1,8 +1,6 @@
 import { MEDALLION } from './medallionPath'
 
 type Props = {
-  /** Завитки внешней каймы: продолжают лучи или стоят посередине между ними */
-  border: 'rays' | 'between'
   /** Сколько лучей — по шагу значков, чтобы каждый значок стоял на своём луче */
   rays: number
   /** Угол первого луча, градусы (0 — вправо): туда смотрит выбранный значок */
@@ -37,15 +35,16 @@ const arc = (r: number, deg: number) => {
 
 /** Медальон на барабане (фон — бумага самого диска). Лучи и завитки между ними строятся
  *  по числу значков; кайма из завитков и шаңыраҡ — как на картинке владельца. Цвет — в CSS */
-export function Medallion({ border, rays, phase }: Props) {
+export function Medallion({ rays, phase }: Props) {
   const sector = 360 / rays
   // В узком секторе завиток уменьшаем, чтобы соседние не слипались
   const shrink = Math.min(1, sector / SRC_SECTOR)
   const [sx, sy] = arc(SPRIG_R, SRC_MID).split(' ').map(Number)
   const angles = Array.from({ length: rays }, (_, i) => phase + i * sector)
-  // Завитков каймы столько же, сколько лучей; в тесном круге (телефон) они мельче
+  // Завитков каймы столько же, сколько лучей, — посередине между ними (выбор владельца);
+  // в тесном круге (телефон) они мельче
   const knotShrink = Math.min(1, sector / (KNOT_HALF * 2 + 4))
-  const knotAt = border === 'rays' ? 0 : sector / 2
+  const knotAt = sector / 2
 
   return (
     <svg className="yurt medallion" viewBox="0 0 1000 1000" aria-hidden="true">
@@ -70,7 +69,7 @@ export function Medallion({ border, rays, phase }: Props) {
         </clipPath>
       </defs>
 
-      {/* Завитки каймы: на продолжении каждого луча или посередине между лучами */}
+      {/* Завитки каймы — посередине между лучами */}
       {angles.map((a) => (
         <g key={`k${a}`} transform={`rotate(${a + knotAt - KNOT_MID} ${C} ${C})`}>
           <g transform={`translate(${C} ${C - RIM}) scale(${knotShrink}) translate(${-C} ${-(C - RIM)})`}>
