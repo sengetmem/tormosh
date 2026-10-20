@@ -416,11 +416,56 @@ a.menu__item:focus-visible::before {
 }
 
 /* ===== Кнопки ===== */
-/* Кнопки связи: тонкая рамка вместо яркой заливки — заметно, но не кричит */
+/* Кнопки связи «Telegram» и «ВК» — в стиле прежней «Заказать» */
 .contact {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.9rem;
+}
+
+.btn--order {
+  display: inline-block;
+  padding: 0.9rem 1.6rem;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  transform: skewX(var(--skew));
+  box-shadow: 6px 6px 0 var(--accent);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.btn--order span {
+  display: inline-block;
+  transform: skewX(calc(var(--skew) * -1));
+}
+
+.btn--order:hover:not(:disabled) {
+  transform: skewX(var(--skew)) translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--accent);
+}
+
+.btn--order:active:not(:disabled) {
+  transform: skewX(var(--skew)) translate(4px, 4px);
+  box-shadow: 0 0 0 var(--accent);
+}
+
+.btn--order:disabled {
+  cursor: not-allowed;
+  background: #3a3f55;
+  color: var(--muted);
+  box-shadow: 6px 6px 0 rgb(0 0 0 / 0.4);
+  animation: none;
+}
+
+@keyframes pulse {
+  50% {
+    filter: brightness(1.15);
+  }
 }
 
 .contact__label {
@@ -429,37 +474,6 @@ a.menu__item:focus-visible::before {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
-}
-
-.contact--soon {
-  font-family: var(--font-display);
-  color: var(--muted);
-}
-
-.btn--contact {
-  display: inline-block;
-  padding: 0.6rem 1.2rem;
-  border: 2px solid var(--paper);
-  color: var(--paper);
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  white-space: nowrap;
-  box-shadow: 3px 3px 0 var(--accent);
-  transition:
-    background 0.15s,
-    color 0.15s,
-    translate 0.15s,
-    box-shadow 0.15s;
-}
-
-.btn--contact:hover {
-  background: var(--paper);
-  color: var(--ink);
-}
-
-.btn--contact:active {
-  translate: 3px 3px;
-  box-shadow: 0 0 0 var(--accent);
 }
 
 .btn {
@@ -784,6 +798,80 @@ a.menu__item:focus-visible::before {
   text-shadow: 6px 6px 0 var(--accent);
 }
 
+
+/* ===== Экран «выбрано» ===== */
+.confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2rem;
+  padding: 1rem;
+  background: rgb(7 11 26 / 0.88);
+  overflow: hidden;
+}
+
+/* Полоса шире экрана: после наклона её концы не должны открывать углы — на узком телефоне
+   при ширине ровно в экран по бокам оставались треугольные зазоры */
+.confirm__flash {
+  position: absolute;
+  left: -15%;
+  right: -15%;
+  top: 50%;
+  height: 34vh;
+  margin-top: -24vh;
+  background: linear-gradient(to bottom, var(--gold) 0 6px, var(--accent) 6px calc(100% - 6px), var(--gold) 0);
+  transform-origin: left;
+  rotate: -6deg;
+  z-index: -1;
+}
+
+.confirm__shout {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(4rem, 16vw, 12rem);
+  line-height: 1;
+  color: var(--paper);
+  text-shadow:
+    6px 6px 0 var(--ink),
+    10px 10px 0 var(--gold);
+}
+
+.confirm__panel {
+  max-width: 440px;
+  padding: 1.5rem;
+  text-align: center;
+  background: var(--ink);
+  border: 2px solid var(--gold);
+}
+
+.confirm__panel h2 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.confirm__panel p {
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+
+
+.btn--ghost {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid var(--paper);
+  transform: skewX(var(--skew));
+}
+.btn--ghost:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
 
 /* Кнопка «повернуть» для вещей с принтом на спине */
 .flip {
@@ -1134,10 +1222,6 @@ a.menu__item:focus-visible::before {
 
   /* На телефоне виден только верх барабана: дуга с каймой над значками.
      Центр круга — под экраном, на радиус ниже значков */
-  .wheel--h {
-    overflow: hidden;
-  }
-
   .wheel--h .wheel__disc {
     --disc: calc(var(--r) * 2 + 120px);
     /* Край круга с каймой целиком внутри полосы: верх диска на 6px ниже её края */
@@ -1158,8 +1242,12 @@ a.menu__item:focus-visible::before {
   }
 
 
+  /* Табличка и нижняя полоса лежат поверх колеса: оно уходит под них, а не срезается ровной линией */
   .selector {
-    position: static;
+    position: relative;
+    z-index: 3;
+    top: auto;
+    left: auto;
     order: 3;
     flex: none;
     flex-direction: row;
@@ -1199,6 +1287,8 @@ a.menu__item:focus-visible::before {
 
   /* Снизу только цена и кнопка: название уже на табличке */
   .strip--bottom {
+    position: relative;
+    z-index: 3;
     grid-template-columns: auto minmax(0, 1fr);
     gap: 1rem;
     margin: 0.4rem 0 0;
@@ -1216,12 +1306,17 @@ a.menu__item:focus-visible::before {
 
   .contact {
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
-  .btn--contact {
-    padding: 0.6rem 0.9rem;
-    font-size: 0.8rem;
+  .contact__label {
+    display: none;
+  }
+
+  .btn--order {
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+    text-align: center;
   }
 }
 

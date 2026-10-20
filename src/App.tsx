@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Backdrop } from './components/Backdrop'
+import { ConfirmOverlay, type ContactTarget } from './components/ConfirmOverlay'
 import { Menu } from './components/Menu'
 import { Stage } from './components/Stage'
 import { EDGE_STEPS, stepOf, Wheel } from './components/Wheel'
@@ -42,6 +43,7 @@ const BG_SHARE = 0.62
 
 export default function App() {
   const [[cursor, direction], setState] = useState<[number, number]>(() => [cursorFromHash(), 1])
+  const [target, setTarget] = useState<ContactTarget | null>(null)
   const muted = useMuted()
   const vertical = !useMediaQuery('(max-width: 860px)')
   const { w, h } = useViewport()
@@ -107,8 +109,17 @@ export default function App() {
     setState(([cur]) => [cur + offset, Math.sign(offset)])
   }, [])
 
+  // Нажали «Telegram» или «ВК» — сначала вспышка «Әйҙә!», переход делает сама вспышка
+  const contact = (t: ContactTarget) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    chime()
+    setTarget(t)
+  }
+  const closeConfirm = useCallback(() => setTarget(null), [])
+
   // Управление с клавиатуры, как с геймпада
   useEffect(() => {
+    if (target) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') step(1)
       else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') step(-1)
@@ -117,7 +128,7 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [step])
+  }, [step, target])
 
   // Колёсико мыши листает вещи, как стрелки. Пауза — чтобы один щелчок колёсика = один шаг
   const lastWheel = useRef(0)
@@ -211,24 +222,33 @@ export default function App() {
             <span>Цена</span>
             <strong>{priceText}</strong>
           </div>
-          {/* Спокойные кнопки связи: Telegram сразу знает, какую вещь выбрали; ВК — просто написать */}
+          {/* Кнопки связи: Telegram сразу знает, какую вещь выбрали; ВК — просто написать */}
           {product ? (
             <div className="contact">
               <span className="contact__label">Написать</span>
-              <a className="btn btn--contact" href={orderLink(product.id)} target="_blank" rel="noreferrer" onClick={chime}>
-                Telegram
+              <a
+                className="btn btn--order"
+                href={orderLink(product.id)}
+                onClick={contact({ label: 'Telegram', url: orderLink(product.id) })}
+              >
+                <span>Telegram</span>
               </a>
-              <a className="btn btn--contact" href={VK_URL} target="_blank" rel="noreferrer" onClick={chime}>
-                ВК
+              <a className="btn btn--order" href={VK_URL} onClick={contact({ label: 'ВК', url: VK_URL })}>
+                <span>ВК</span>
               </a>
             </div>
           ) : (
-            <div className="contact contact--soon">Скоро</div>
+            <button type="button" className="btn btn--order" disabled>
+              <span>Скоро</span>
+            </button>
           )}
         </section>
 
       </div>
 
+      <AnimatePresence>
+        {target && product && <ConfirmOverlay product={product} target={target} onClose={closeConfirm} />}
+      </AnimatePresence>
     </div>
   )
 }
