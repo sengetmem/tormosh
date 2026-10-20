@@ -417,7 +417,7 @@ a.menu__item:focus-visible::before {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
-  margin-top: 1.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .menu__socials p {

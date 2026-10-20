@@ -79,6 +79,15 @@ export function Menu() {
                   <span />
                 </button>
                 <p className="menu__title">Пауза</p>
+                {/* Соцсети — самым верхом, сразу под заголовком */}
+                <div className="menu__socials">
+                  <p>Мы в соцсетях</p>
+                  {SOCIALS.filter((s) => s.href).map((s) => (
+                    <a key={s.label} className="menu__social" href={s.href} target="_blank" rel="noreferrer">
+                      <span>{s.label}</span>
+                    </a>
+                  ))}
+                </div>
                 <ul>
                   {MENU_ITEMS.map((link, i) => (
                     <motion.li
@@ -117,14 +126,6 @@ export function Menu() {
                     </motion.li>
                   ))}
                 </ul>
-                <div className="menu__socials">
-                  <p>Мы в соцсетях</p>
-                  {SOCIALS.filter((s) => s.href).map((s) => (
-                    <a key={s.label} className="menu__social" href={s.href} target="_blank" rel="noreferrer">
-                      <span>{s.label}</span>
-                    </a>
-                  ))}
-                </div>
                 <p className="menu__foot">© {YEAR} TORMOSH</p>
               </motion.nav>
           </>
