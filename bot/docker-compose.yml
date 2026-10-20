@@ -8,8 +8,9 @@ services:
     volumes:
       - ./data:/data
     restart: unless-stopped
-    # На сервере 1 ГБ памяти и рядом бот бюджета — этому хватит малого
-    mem_limit: 128m
+    # На сервере 1 ГБ памяти и рядом бот бюджета. Сам бот занимает ~140 МБ (aiogram тянет pydantic):
+    # при 128m он упирался в предел и уходил в swap
+    mem_limit: 256m
     logging:
       options:
         max-size: "1m"
