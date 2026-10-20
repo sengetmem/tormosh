@@ -64,7 +64,6 @@ export const products: Product[] = [
     color: 'Белая',
     description: 'Спереди чистая. На спине — глаз в центре спирали и две руки, держащие нить.',
     image: img('spiral-back'),
-    flip: { image: img('spiral-front'), labels: ['Спина', 'Перед'] },
     accent: '#7b2dff',
     price: 1800,
   },
