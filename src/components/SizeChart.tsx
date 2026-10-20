@@ -1,4 +1,4 @@
-import { MEASURES, SIZE_NOTE, SIZES } from '../data/sizes'
+import { IN_STOCK, MEASURES, SIZE_NOTE, SIZES } from '../data/sizes'
 
 /** Таблица размеров для меню: схема замеров A–D и сетка в сантиметрах */
 export function SizeChart() {
@@ -48,7 +48,7 @@ export function SizeChart() {
           </tr>
         </thead>
         <tbody>
-          {SIZES.map((s) => (
+          {SIZES.filter((s) => IN_STOCK.includes(s.size)).map((s) => (
             <tr key={s.size}>
               <th scope="row">
                 <b>{s.size}</b>

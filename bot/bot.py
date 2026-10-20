@@ -4,7 +4,11 @@
 и контакт и присылает заказ владельцу. Вопросы в поддержку (?start=help) тоже уходят владельцу;
 владелец отвечает покупателю, просто ответив (reply) на сообщение бота.
 
-Настройки — переменные окружения: BOT_TOKEN, OWNER_ID, DATA_DIR (по умолчанию ./data).
+Настройки — переменные окружения:
+  BOT_TOKEN — токен от @BotFather;
+  ADMINS — админы через запятую: числовые id и/или @ники (ник срабатывает, когда человек нажмёт «Старт»);
+  DATA_DIR — где хранить данные (по умолчанию ./data).
+Заказы и вопросы приходят всем админам; ответить покупателю может любой из них.
 """
 
 import asyncio
@@ -40,14 +44,19 @@ PRODUCTS = {
     "spiral": {"name": "Ҡумыҙ", "price": 1800, "sizes": True},
     "sweater": {"name": "Төлкө", "price": None, "sizes": False},
 }
-SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"]
+SIZES = ["S", "M"]  # пока шьём только эти два
 
 TOKEN = os.environ["BOT_TOKEN"]
-OWNER_ID = int(os.environ.get("OWNER_ID", "0"))
 DATA = Path(os.environ.get("DATA_DIR", "data"))
 DATA.mkdir(parents=True, exist_ok=True)
-# Какое сообщение у владельца к какому покупателю относится — чтобы ответ ушёл адресату
+# Какое сообщение у админа к какому покупателю относится — чтобы ответ ушёл адресату
 LINKS_FILE = DATA / "links.json"
+# id админов, которых знаем по нику: Telegram не даёт узнать id по нику, пока человек не напишет боту
+KNOWN_ADMINS_FILE = DATA / "admins.json"
+
+_admin_entries = [a.strip() for a in os.environ.get("ADMINS", "").split(",") if a.strip()]
+ADMIN_IDS = {int(a) for a in _admin_entries if a.isdigit()}
+ADMIN_NICKS = {a.lstrip("@").lower() for a in _admin_entries if not a.isdigit()}
 
 log = logging.getLogger("tormoshbot")
 dp = Dispatcher()
@@ -62,6 +71,25 @@ class Support(StatesGroup):
     question = State()
 
 
+def known_admins() -> set[int]:
+    try:
+        saved = set(json.loads(KNOWN_ADMINS_FILE.read_text("utf-8")))
+    except (FileNotFoundError, ValueError):
+        saved = set()
+    return ADMIN_IDS | saved
+
+
+def is_admin(user) -> bool:
+    """Админ по id из настроек — или по нику; во втором случае запоминаем его id."""
+    if user.id in known_admins():
+        return True
+    if user.username and user.username.lower() in ADMIN_NICKS:
+        KNOWN_ADMINS_FILE.write_text(json.dumps(sorted(known_admins() | {user.id})), "utf-8")
+        log.info("Новый админ @%s id=%s", user.username, user.id)
+        return True
+    return False
+
+
 def load_links() -> dict[str, int]:
     try:
         return json.loads(LINKS_FILE.read_text("utf-8"))
@@ -69,9 +97,13 @@ def load_links() -> dict[str, int]:
         return {}
 
 
-def remember_link(owner_message_id: int, user_id: int) -> None:
+def link_key(chat_id: int, message_id: int) -> str:
+    return f"{chat_id}:{message_id}"
+
+
+def remember_link(key: str, user_id: int) -> None:
     links = load_links()
-    links[str(owner_message_id)] = user_id
+    links[key] = user_id
     # Храним только последние 500 — старые переписки не нужны
     LINKS_FILE.write_text(json.dumps(dict(list(links.items())[-500:])), "utf-8")
 
@@ -100,8 +132,7 @@ def sizes_keyboard() -> InlineKeyboardMarkup:
     buttons = [InlineKeyboardButton(text=s, callback_data=f"size:{s}") for s in SIZES]
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            buttons[:4],
-            buttons[4:],
+            buttons,
             [InlineKeyboardButton(text="Не знаю размер — помогите", callback_data="size:?")],
         ]
     )
@@ -140,6 +171,12 @@ async def ask_contact(m: Message, state: FSMContext, intro: str = "") -> None:
 async def start(m: Message, command: CommandObject, state: FSMContext) -> None:
     await state.clear()
     arg = command.args or ""
+    if not arg and is_admin(m.from_user):
+        await m.answer(
+            "Вы админ TORMOSH: сюда будут приходить заказы и вопросы.\n"
+            "Чтобы ответить покупателю — ответьте (reply) на его заказ или вопрос.\n\n"
+            "Ниже — то, что видит покупатель:"
+        )
     if arg.startswith("order-") and arg[6:] in PRODUCTS:
         await ask_size_or_contact(m, state, arg[6:])
     elif arg == "help":
@@ -200,19 +237,27 @@ async def got_question(m: Message, state: FSMContext, bot: Bot) -> None:
 
 
 async def notify_owner(bot: Bot, text: str, user_id: int) -> None:
-    if not OWNER_ID:
-        log.warning("OWNER_ID не задан — некому отправить: %s", text)
+    """Заказ или вопрос — всем админам."""
+    admins = known_admins()
+    if not admins:
+        log.warning("Админов нет — некому отправить: %s", text)
         return
-    sent = await bot.send_message(OWNER_ID, text)
-    remember_link(sent.message_id, user_id)
+    for admin in admins:
+        try:
+            sent = await bot.send_message(admin, text)
+            remember_link(link_key(admin, sent.message_id), user_id)
+        except Exception:  # админ мог заблокировать бота — остальным всё равно отправим
+            log.exception("Не отправилось админу %s", admin)
 
 
-@dp.message(F.chat.id == OWNER_ID, F.reply_to_message)
-async def owner_reply(m: Message, bot: Bot) -> None:
-    """Владелец ответил на заказ или вопрос — пересылаем ответ покупателю."""
-    user_id = load_links().get(str(m.reply_to_message.message_id))
+@dp.message(F.reply_to_message, F.func(lambda m: is_admin(m.from_user)))
+async def admin_reply(m: Message, bot: Bot) -> None:
+    """Админ ответил на заказ или вопрос — пересылаем ответ покупателю."""
+    user_id = load_links().get(link_key(m.chat.id, m.reply_to_message.message_id))
     if not user_id:
-        await m.reply("Не понял, кому это. Ответьте именно на сообщение с заказом или вопросом.")
+        await m.reply(
+            "Не понял, кому ответ. Нажмите «Ответить» именно на сообщении «🛒 Новый заказ» или «❓ Вопрос»."
+        )
         return
     await bot.copy_message(user_id, m.chat.id, m.message_id)
     await m.reply("Отправлено покупателю ✓")
@@ -221,7 +266,7 @@ async def owner_reply(m: Message, bot: Bot) -> None:
 @dp.message()
 async def anything_else(m: Message, state: FSMContext, bot: Bot) -> None:
     """Любое другое сообщение — считаем вопросом и передаём владельцу."""
-    if m.chat.id == OWNER_ID:
+    if is_admin(m.from_user):
         await m.answer("Чтобы ответить покупателю, ответьте (reply) на его заказ или вопрос.")
         return
     await got_question(m, state, bot)

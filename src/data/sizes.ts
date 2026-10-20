@@ -9,6 +9,9 @@ export const MEASURES = [
   { key: 'D', label: 'Длина рукава' },
 ] as const
 
+/** Какие размеры сейчас шьём — только они видны в таблице на сайте (и в боте заказов) */
+export const IN_STOCK = ['S', 'M']
+
 export const SIZES: { size: string; ru: string; cm: [number, number, number, number] }[] = [
   { size: 'XS', ru: '42–44', cm: [68, 61, 20, 18] },
   { size: 'S', ru: '44–46', cm: [70, 63, 20, 19] },
