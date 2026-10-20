@@ -225,7 +225,6 @@ export default function App() {
           {/* Кнопки связи: Telegram сразу знает, какую вещь выбрали; ВК — просто написать */}
           {product ? (
             <div className="contact">
-              <span className="contact__label">Написать</span>
               <a
                 className="btn btn--order"
                 href={orderLink(product.id)}
@@ -233,8 +232,8 @@ export default function App() {
               >
                 <span>Telegram</span>
               </a>
-              <a className="btn btn--order" href={VK_URL} onClick={contact({ label: 'ВК', url: VK_URL })}>
-                <span>ВК</span>
+              <a className="btn btn--order" href={VK_URL} onClick={contact({ label: 'ВКонтакте', url: VK_URL })}>
+                <span>ВКонтакте</span>
               </a>
             </div>
           ) : (

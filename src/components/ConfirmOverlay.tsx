@@ -3,14 +3,14 @@ import { useEffect, useRef } from 'react'
 import type { Product } from '../data/products'
 
 /** Куда переходим после вспышки */
-export type ContactTarget = { label: 'Telegram' | 'ВК'; url: string }
+export type ContactTarget = { label: 'Telegram' | 'ВКонтакте'; url: string }
 
 type ConfirmOverlayProps = { product: Product; target: ContactTarget; onClose: () => void }
 
 /** Через сколько после «Әйҙә!» открывать переписку, мс — чтобы вспышку успели увидеть */
 const REDIRECT_DELAY = 1300
 
-/** Вспышка «Әйҙә!» после нажатия «Telegram» или «ВК», затем переход в переписку в этой же вкладке */
+/** Вспышка «Әйҙә!» после нажатия «Telegram» или «ВКонтакте», затем переход в переписку в этой же вкладке */
 export function ConfirmOverlay({ product, target, onClose }: ConfirmOverlayProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
 
