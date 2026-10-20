@@ -704,12 +704,12 @@ a.menu__item:focus-visible::before {
   height: 100%;
   border-radius: 50%;
   overflow: hidden;
-  /* Эмалевый значок: блик сверху, металлический ободок, тень от толщины */
+  /* Эмалевый значок: блик сверху, жёлтый ободок (цвет --gold), тень от толщины */
   border: 6px solid transparent;
   background:
     linear-gradient(170deg, rgb(255 255 255 / 0.35), transparent 45%) padding-box,
     linear-gradient(var(--accent), var(--accent)) padding-box,
-    conic-gradient(from 30deg, #fff6cf, #b48a26, #ffe9a3, #7d5e15, #f6d775, #a07a1e, #fff6cf) border-box;
+    conic-gradient(from 30deg, #fff59a, #ffd400, #fff07a, #e8b900, #ffe54d, #f2c200, #fff59a) border-box;
   box-shadow:
     0 6px 0 rgb(0 0 0 / 0.4),
     inset 0 -8px 0 rgb(0 0 0 / 0.18);
@@ -1177,8 +1177,8 @@ a.menu__item:focus-visible::before {
 
 /* ===== Телефоны и планшеты ===== */
 /* Всё помещается в один экран: страница не прокручивается, пальцем листаются вещи */
-/* То же условие, что PHONE_QUERY в App.tsx */
-@media (orientation: portrait) {
+/* То же условие, что PHONE_QUERY в App.tsx: стоячие и почти квадратные экраны (раскладушки) */
+@media (max-aspect-ratio: 4/3) {
   html,
   body {
     overflow: hidden;
