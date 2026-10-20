@@ -1,11 +1,10 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Backdrop } from './components/Backdrop'
-import { ConfirmOverlay } from './components/ConfirmOverlay'
 import { Menu } from './components/Menu'
 import { Stage } from './components/Stage'
 import { EDGE_STEPS, stepOf, Wheel } from './components/Wheel'
-import { orderLink } from './config'
+import { orderLink, VK_URL } from './config'
 import { LOCKED_ACCENT, slotAt, slots } from './data/products'
 import { useMediaQuery, useViewport } from './hooks/useMediaQuery'
 import { chime, setMuted, tick, useMuted } from './sound'
@@ -43,7 +42,6 @@ const BG_SHARE = 0.62
 
 export default function App() {
   const [[cursor, direction], setState] = useState<[number, number]>(() => [cursorFromHash(), 1])
-  const [confirmed, setConfirmed] = useState(false)
   const muted = useMuted()
   const vertical = !useMediaQuery('(max-width: 860px)')
   const { w, h } = useViewport()
@@ -109,27 +107,17 @@ export default function App() {
     setState(([cur]) => [cur + offset, Math.sign(offset)])
   }, [])
 
-  const confirm = useCallback(() => {
-    if (!product) return
-    chime()
-    setConfirmed(true)
-  }, [product])
-
-  const closeConfirm = useCallback(() => setConfirmed(false), [])
-
   // Управление с клавиатуры, как с геймпада
   useEffect(() => {
-    if (confirmed) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') step(1)
       else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') step(-1)
-      else if (e.key === 'Enter' && document.activeElement === document.body) confirm()
       else return
       e.preventDefault()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [confirmed, step, confirm])
+  }, [step])
 
   // Колёсико мыши листает вещи, как стрелки. Пауза — чтобы один щелчок колёсика = один шаг
   const lastWheel = useRef(0)
@@ -223,20 +211,24 @@ export default function App() {
             <span>Цена</span>
             <strong>{priceText}</strong>
           </div>
-          {product && orderLink(product.id) ? (
-            <a className="btn btn--order" href={orderLink(product.id)} target="_blank" rel="noreferrer" onClick={confirm}>
-              <span>Заказать в Telegram</span>
-            </a>
+          {/* Спокойные кнопки связи: Telegram сразу знает, какую вещь выбрали; ВК — просто написать */}
+          {product ? (
+            <div className="contact">
+              <span className="contact__label">Написать</span>
+              <a className="btn btn--contact" href={orderLink(product.id)} target="_blank" rel="noreferrer" onClick={chime}>
+                Telegram
+              </a>
+              <a className="btn btn--contact" href={VK_URL} target="_blank" rel="noreferrer" onClick={chime}>
+                ВК
+              </a>
+            </div>
           ) : (
-            <button type="button" className="btn btn--order" onClick={confirm} disabled={!product}>
-              <span>{product ? 'Заказать в Telegram' : 'Скоро'}</span>
-            </button>
+            <div className="contact contact--soon">Скоро</div>
           )}
         </section>
 
       </div>
 
-      <AnimatePresence>{confirmed && product && <ConfirmOverlay product={product} onClose={closeConfirm} />}</AnimatePresence>
     </div>
   )
 }

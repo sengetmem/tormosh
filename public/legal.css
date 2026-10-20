@@ -1,0 +1,108 @@
+/* Страницы «Покупателям» и «Политика конфиденциальности»: в цветах сайта, но спокойно — для чтения */
+@font-face {
+  font-family: 'Golos Text';
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/golos-text-400-cyrillic.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Golos Text';
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/golos-text-400-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+20BD;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-weight: 900;
+  font-display: swap;
+  src: url(/fonts/rubik-900-cyrillic.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Rubik';
+  font-weight: 900;
+  font-display: swap;
+  src: url(/fonts/rubik-900-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+20BD;
+}
+
+:root {
+  --ink: #000814;
+  --paper: #ffffff;
+  --muted: #9fb3d9;
+  --red: #ff2a3d;
+  --gold: #ffd400;
+  color-scheme: only dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font: 16px/1.6 'Golos Text', system-ui, sans-serif;
+}
+
+.doc {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 16px 4rem;
+}
+
+.doc__back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  font-family: 'Rubik', 'Arial Black', sans-serif;
+  font-weight: 900;
+  /* «Конфиденциальности» длинное: на узком телефоне шрифт мельче, а если не влезет — перенос */
+  font-size: clamp(1.3rem, 6.4vw, 2.6rem);
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.1;
+  text-transform: uppercase;
+  border-bottom: 4px solid var(--red);
+  padding-bottom: 0.6rem;
+}
+
+.doc__meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+h2 {
+  margin: 2rem 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+a {
+  color: var(--gold);
+}
+
+ul,
+ol {
+  padding-left: 1.3rem;
+}
+
+li + li {
+  margin-top: 0.4rem;
+}
+
+/* Место, которое ещё нужно заполнить данными продавца */
+.todo {
+  padding: 0 0.3em;
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 700;
+}
