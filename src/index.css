@@ -767,9 +767,10 @@ a.menu__item:focus-visible::before {
 .hanger__shirt {
   position: relative;
   display: block;
-  width: min(86vmin, 790px, 48vw);
+  width: min(86vmin, 790px, 44vw);
   /* На невысоких экранах (1280×720, 1366×768) крючок упирался бы в шапку, а низ уходил под полосу */
-  max-height: min(70vh, calc(100vh - 300px));
+  /* vh внутри увеличенного вида (zoom) тоже увеличиваются — делим обратно, иначе кофта уходит под полосу */
+  max-height: min(calc(70vh / var(--zoom, 1)), calc(100vh / var(--zoom, 1) - 300px));
   object-fit: contain;
   user-select: none;
   /* Тень на стене за вешалкой: смещена, как от лампы сверху-слева */
