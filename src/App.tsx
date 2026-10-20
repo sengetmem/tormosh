@@ -58,7 +58,7 @@ export default function App() {
   // На компьютере круг подстраивается под окно. На телефоне радиус такой,
   // чтобы крайние значки (±EDGE_STEPS шагов) вставали ровно у краёв экрана
   const radius = vertical
-    ? Math.round(Math.min(430, h * 0.47, w * 0.28))
+    ? Math.round(Math.min(480, h * 0.52, w * 0.31))
     : Math.round((w / 2 - MEDAL_H / 2 - 4) / Math.sin((EDGE_STEPS * stepOf(false) * Math.PI) / 180))
 
   const slot = slotAt(cursor)
