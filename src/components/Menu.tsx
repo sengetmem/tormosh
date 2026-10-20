@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { MENU_ITEMS } from '../config'
+import { MENU_ITEMS, SOCIALS } from '../config'
 import { SizeChart } from './SizeChart'
 
 const YEAR = new Date().getFullYear()
@@ -117,6 +117,14 @@ export function Menu() {
                     </motion.li>
                   ))}
                 </ul>
+                <div className="menu__socials">
+                  <p>Мы в соцсетях</p>
+                  {SOCIALS.filter((s) => s.href).map((s) => (
+                    <a key={s.label} className="menu__social" href={s.href} target="_blank" rel="noreferrer">
+                      <span>{s.label}</span>
+                    </a>
+                  ))}
+                </div>
                 <p className="menu__foot">© {YEAR} TORMOSH</p>
               </motion.nav>
           </>

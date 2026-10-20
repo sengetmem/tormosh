@@ -9,6 +9,13 @@ export const TELEGRAM_CHANNEL = 'https://t.me/Tormosh02'
 /** ВКонтакте: vk.me сразу открывает переписку */
 export const VK_URL = 'https://vk.me/hlebusheknesi'
 
+/** Соцсети в меню ☰. Пустая ссылка — кнопка не показывается (Instagram ждёт адреса) */
+export const SOCIALS: { label: string; href: string }[] = [
+  { label: 'Telegram', href: TELEGRAM_CHANNEL },
+  { label: 'ВКонтакте', href: 'https://vk.ru/hlebusheknesi' },
+  { label: 'Instagram', href: '' },
+]
+
 // Запасной вариант, пока бота нет: просто ссылка на аккаунт. Пример: 'https://t.me/tormosh'
 export const TELEGRAM_URL = ''
 
@@ -27,14 +34,12 @@ export const MENU_ITEMS: { label: string; href?: string; text?: string[]; conten
     label: 'Как заказать',
     text: [
       '1. Выбери вещь',
-      '2. Напиши нам в Telegram или ВК — кнопки внизу экрана',
+      '2. Напиши нам в Telegram или ВКонтакте — кнопки внизу экрана',
       '3. Уточним размер и доставку: СДЭК или такси',
     ],
   },
   { label: 'Покупателям: доставка, оплата, возврат', href: '/pokupatelyam.html' },
   { label: 'Политика конфиденциальности', href: '/privacy.html' },
-  { label: 'Наш канал в Telegram', href: TELEGRAM_CHANNEL },
   { label: 'Telegram-бот', href: `https://t.me/${TELEGRAM_BOT}` },
-  { label: 'ВКонтакте', href: VK_URL },
   { label: 'Поддержка', href: `https://t.me/${TELEGRAM_BOT}?start=help` },
 ]
