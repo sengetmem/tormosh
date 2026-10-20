@@ -40,18 +40,33 @@ const MEDAL_H = 66
 /** Фон экрана — цвет вещи, смешанный с --ink: доля самой вещи */
 const BG_BASE = '#000814'
 const BG_SHARE = 0.62
+/** Раскладка телефона — для любых «стоячих» экранов (телефон, планшет). Боком — раскладка компьютера */
+const PHONE_QUERY = '(orientation: portrait)'
 /** Экран, под который рисовался компьютерный вид. На экранах больше весь вид увеличиваем целиком,
  *  иначе колесо и вещь упираются в свои предельные размеры и тонут в пустом фоне */
 const DESIGN_W = 1920
 const DESIGN_H = 1080
+/** Ниже этой высоты компьютерный вид не помещается (телефон боком) — уменьшаем его целиком */
+const MIN_DESK_H = 720
+/** Телефон, под который рисовалась его раскладка. Планшет «стоя» — та же раскладка, увеличенная */
+const PHONE_W = 430
+const PHONE_H = 932
+
+/** Во сколько раз увеличить (или уменьшить) весь экран, чтобы пропорции были как задуманы */
+const zoomFor = (vertical: boolean, w: number, h: number) =>
+  vertical
+    ? h < MIN_DESK_H
+      ? Math.max(0.5, h / MIN_DESK_H)
+      : Math.max(1, Math.min(w / DESIGN_W, h / DESIGN_H))
+    : Math.max(1, Math.min(w / PHONE_W, h / PHONE_H))
 
 export default function App() {
   const [[cursor, direction], setState] = useState<[number, number]>(() => [cursorFromHash(), 1])
   const [target, setTarget] = useState<ContactTarget | null>(null)
   const muted = useMuted()
-  const vertical = !useMediaQuery('(max-width: 860px)')
+  const vertical = !useMediaQuery(PHONE_QUERY)
   const viewport = useViewport()
-  const zoom = vertical ? Math.max(1, Math.min(viewport.w / DESIGN_W, viewport.h / DESIGN_H)) : 1
+  const zoom = zoomFor(vertical, viewport.w, viewport.h)
   // Внутри увеличенного вида размеры считаем в его собственных единицах
   const w = viewport.w / zoom
   const h = viewport.h / zoom

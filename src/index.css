@@ -34,6 +34,9 @@
 html,
 body {
   margin: 0;
+  /* Сайт — один экран: страница не прокручивается ни на одном устройстве, листаются только вещи */
+  overflow: hidden;
+  overscroll-behavior: none;
   background: var(--ink);
   color: var(--paper);
   font-family: var(--font-body);
@@ -67,7 +70,6 @@ kbd {
   position: relative;
   /* При увеличении (zoom, см. App.tsx) высоту делим обратно — экран остаётся ровно в окно */
   height: calc(100svh / var(--zoom, 1));
-  min-height: 640px;
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-columns: minmax(0, 1fr);
@@ -767,7 +769,7 @@ a.menu__item:focus-visible::before {
 .hanger__shirt {
   position: relative;
   display: block;
-  width: min(86vmin, 790px, 44vw);
+  width: min(calc(86vmin / var(--zoom, 1)), 790px, calc(44vw / var(--zoom, 1)));
   /* На невысоких экранах (1280×720, 1366×768) крючок упирался бы в шапку, а низ уходил под полосу */
   /* vh внутри увеличенного вида (zoom) тоже увеличиваются — делим обратно, иначе кофта уходит под полосу */
   max-height: min(calc(70vh / var(--zoom, 1)), calc(100vh / var(--zoom, 1) - 300px));
@@ -1130,7 +1132,8 @@ a.menu__item:focus-visible::before {
 
 /* ===== Телефоны и планшеты ===== */
 /* Всё помещается в один экран: страница не прокручивается, пальцем листаются вещи */
-@media (max-width: 860px) {
+/* То же условие, что PHONE_QUERY в App.tsx */
+@media (orientation: portrait) {
   html,
   body {
     overflow: hidden;
@@ -1140,7 +1143,7 @@ a.menu__item:focus-visible::before {
   .screen {
     display: flex;
     flex-direction: column;
-    height: 100svh;
+    height: calc(100svh / var(--zoom, 1));
     min-height: 0;
   }
 
@@ -1203,8 +1206,8 @@ a.menu__item:focus-visible::before {
   }
 
   .hanger__shirt {
-    width: min(86vw, 420px);
-    max-height: max(150px, calc(100svh - 470px));
+    width: min(calc(86vw / var(--zoom, 1)), 420px);
+    max-height: max(150px, calc(100svh / var(--zoom, 1) - 470px));
   }
 
   /* Дуга от края до края экрана */
