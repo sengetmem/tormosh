@@ -65,7 +65,8 @@ kbd {
 
 .screen {
   position: relative;
-  height: 100svh;
+  /* При увеличении (zoom, см. App.tsx) высоту делим обратно — экран остаётся ровно в окно */
+  height: calc(100svh / var(--zoom, 1));
   min-height: 640px;
   display: grid;
   grid-template-rows: auto 1fr auto;

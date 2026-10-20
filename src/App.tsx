@@ -40,13 +40,21 @@ const MEDAL_H = 66
 /** Фон экрана — цвет вещи, смешанный с --ink: доля самой вещи */
 const BG_BASE = '#000814'
 const BG_SHARE = 0.62
+/** Экран, под который рисовался компьютерный вид. На экранах больше весь вид увеличиваем целиком,
+ *  иначе колесо и вещь упираются в свои предельные размеры и тонут в пустом фоне */
+const DESIGN_W = 1920
+const DESIGN_H = 1080
 
 export default function App() {
   const [[cursor, direction], setState] = useState<[number, number]>(() => [cursorFromHash(), 1])
   const [target, setTarget] = useState<ContactTarget | null>(null)
   const muted = useMuted()
   const vertical = !useMediaQuery('(max-width: 860px)')
-  const { w, h } = useViewport()
+  const viewport = useViewport()
+  const zoom = vertical ? Math.max(1, Math.min(viewport.w / DESIGN_W, viewport.h / DESIGN_H)) : 1
+  // Внутри увеличенного вида размеры считаем в его собственных единицах
+  const w = viewport.w / zoom
+  const h = viewport.h / zoom
   // На компьютере круг подстраивается под окно. На телефоне радиус такой,
   // чтобы крайние значки (±EDGE_STEPS шагов) вставали ровно у краёв экрана
   const radius = vertical
@@ -144,7 +152,7 @@ export default function App() {
 
   return (
     <div className="site">
-      <div className="screen">
+      <div className="screen" style={{ zoom, ['--zoom' as string]: zoom }}>
         <Backdrop />
 
         <header className="topbar">
