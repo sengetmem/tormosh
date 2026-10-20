@@ -1,0 +1,16 @@
+# Бот заказов TORMOSH. Токен и id владельца — в .env рядом (в git не кладётся)
+services:
+  bot:
+    build: .
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    # На сервере 1 ГБ памяти и рядом бот бюджета — этому хватит малого
+    mem_limit: 128m
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
