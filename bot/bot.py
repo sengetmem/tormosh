@@ -21,7 +21,7 @@ from pathlib import Path
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandObject, CommandStart
+from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (
@@ -30,11 +30,12 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     KeyboardButton,
     Message,
+    BotCommand,
     ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
 )
 
 SITE = "http://tormoshuwu.ru"
+CHANNEL = "https://t.me/Tormosh02"
 
 # Каталог — копия src/data/products.ts: при новых вещах дописать и сюда.
 # sizes=False — размеры у вещи пока не объявлены, бот их не спрашивает
@@ -45,6 +46,23 @@ PRODUCTS = {
     "sweater": {"name": "Төлкө", "price": None, "sizes": False},
 }
 SIZES = ["S", "M"]  # пока шьём только эти два
+# Замеры, см — из таблицы на сайте (src/data/sizes.ts)
+SIZE_CHART = "S (44–46): длина 70, ширина 63, плечо 20, рукав 19\nM (46–48): длина 72, ширина 65, плечо 20, рукав 20"
+
+# Кнопки внизу экрана: всегда под рукой, а не только «поделиться номером»
+BTN_CATALOG = "🛍 Каталог"
+BTN_SIZES = "📏 Размеры"
+BTN_QUESTION = "❓ Задать вопрос"
+BTN_CHANNEL = "📢 Наш канал"
+BTN_CANCEL = "✖️ Отменить заказ"
+MAIN_KB = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text=BTN_CATALOG), KeyboardButton(text=BTN_SIZES)],
+        [KeyboardButton(text=BTN_QUESTION), KeyboardButton(text=BTN_CHANNEL)],
+    ],
+    resize_keyboard=True,
+    is_persistent=True,
+)
 
 TOKEN = os.environ["BOT_TOKEN"]
 DATA = Path(os.environ.get("DATA_DIR", "data"))
@@ -155,10 +173,13 @@ async def ask_size_or_contact(m: Message, state: FSMContext, pid: str) -> None:
 
 async def ask_contact(m: Message, state: FSMContext, intro: str = "") -> None:
     await state.set_state(Order.contact)
+    # На шаге контакта внизу — «поделиться номером» и «отменить»; после заказа вернётся обычное меню
     keyboard = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="📱 Поделиться номером", request_contact=True)]],
+        keyboard=[
+            [KeyboardButton(text="📱 Поделиться номером", request_contact=True)],
+            [KeyboardButton(text=BTN_CANCEL)],
+        ],
         resize_keyboard=True,
-        one_time_keyboard=True,
     )
     await m.answer(
         intro + "Как с вами связаться? Нажмите кнопку ниже или напишите телефон / @ник.\n"
@@ -183,10 +204,50 @@ async def start(m: Message, command: CommandObject, state: FSMContext) -> None:
         await state.set_state(Support.question)
         await m.answer("Напишите вопрос одним сообщением — передам, и вам ответят здесь же.")
     else:
-        await m.answer(
-            "Сәләм! Это TORMOSH — башкирская одежда.\nВыберите вещь, и оформим заказ:",
-            reply_markup=catalog_keyboard(),
-        )
+        await m.answer("Сәләм! Это TORMOSH — башкирская одежда.", reply_markup=MAIN_KB)
+        await show_catalog(m)
+
+
+async def show_catalog(m: Message) -> None:
+    await m.answer("Выберите вещь, и оформим заказ:", reply_markup=catalog_keyboard())
+
+
+# Кнопки нижнего меню работают на любом шаге: нажал «Каталог» посреди заказа — заказ сбрасывается
+@dp.message(F.text == BTN_CATALOG)
+async def menu_catalog(m: Message, state: FSMContext) -> None:
+    await state.clear()
+    await m.answer("Каталог TORMOSH", reply_markup=MAIN_KB)
+    await show_catalog(m)
+
+
+@dp.message(F.text == BTN_SIZES)
+async def menu_sizes(m: Message) -> None:
+    await m.answer(f"📏 <b>Размеры футболок (оверсайз)</b>, см:\n{SIZE_CHART}\n\nСомневаетесь — спросите, подскажем.")
+
+
+@dp.message(F.text == BTN_QUESTION)
+async def menu_question(m: Message, state: FSMContext) -> None:
+    await state.set_state(Support.question)
+    await m.answer("Напишите вопрос одним сообщением — передам, и вам ответят здесь же.", reply_markup=MAIN_KB)
+
+
+@dp.message(Command("help"))
+async def help_command(m: Message, state: FSMContext) -> None:
+    await menu_question(m, state)
+
+
+@dp.message(F.text == BTN_CHANNEL)
+async def menu_channel(m: Message) -> None:
+    await m.answer(
+        "Новости и новые вещи — в канале:",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Открыть канал", url=CHANNEL)]]),
+    )
+
+
+@dp.message(F.text == BTN_CANCEL)
+async def menu_cancel(m: Message, state: FSMContext) -> None:
+    await state.clear()
+    await m.answer("Заказ отменён. Если передумаете — «🛍 Каталог».", reply_markup=MAIN_KB)
 
 
 @dp.callback_query(F.data.startswith("item:"))
@@ -217,7 +278,7 @@ async def got_contact(m: Message, state: FSMContext, bot: Bot) -> None:
     await state.clear()
     await m.answer(
         "Заказ принят! Напишем вам в течение дня, чтобы договориться о доставке и оплате. Рахмат! 🧡",
-        reply_markup=ReplyKeyboardRemove(),
+        reply_markup=MAIN_KB,
     )
     text = (
         f"🛒 <b>Новый заказ</b>\n{p['name']} — {price_text(p)}\nРазмер: {data.get('size')}\n"
@@ -232,7 +293,7 @@ async def got_contact(m: Message, state: FSMContext, bot: Bot) -> None:
 @dp.message(Support.question)
 async def got_question(m: Message, state: FSMContext, bot: Bot) -> None:
     await state.clear()
-    await m.answer("Передал! Ответ придёт сюда.")
+    await m.answer("Передал! Ответ придёт сюда.", reply_markup=MAIN_KB)
     await notify_owner(bot, f"❓ <b>Вопрос</b> от {who(m)}:\n\n{m.html_text or '(без текста)'}", m.from_user.id)
 
 
@@ -276,6 +337,11 @@ async def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await bot.delete_webhook(drop_pending_updates=False)
+    # Меню команд слева от поля ввода
+    await bot.set_my_commands([
+        BotCommand(command="start", description="Каталог и заказ"),
+        BotCommand(command="help", description="Задать вопрос"),
+    ])
     await dp.start_polling(bot)
 
 
