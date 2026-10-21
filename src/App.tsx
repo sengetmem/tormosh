@@ -28,9 +28,12 @@ const mixHex = (a: string, b: string, share: number) => {
   return `rgb(${x.map((v, i) => Math.round(v * share + y[i] * (1 - share))).join(' ')})`
 }
 
-// Ссылка вида /#seen-this-man сразу открывает нужную футболку
-const cursorFromHash = () =>
-  Math.max(0, slots.findIndex((s) => s.kind === 'product' && `#${s.product.id}` === window.location.hash))
+/** id вещи из адреса: /seen-this-man/ (у каждой вещи своя страница со своей карточкой для ссылок)
+ *  или старый вид /#seen-this-man — сразу открывает нужную вещь */
+const idFromLocation = () => window.location.hash.slice(1) || window.location.pathname.split('/').filter(Boolean)[0]
+
+const cursorFromLocation = () =>
+  Math.max(0, slots.findIndex((s) => s.kind === 'product' && s.product.id === idFromLocation()))
 
 const WHEEL_COOLDOWN = 280
 /** Наименьший промежуток между шагами меню, мс */
@@ -62,7 +65,7 @@ const zoomFor = (vertical: boolean, w: number, h: number) =>
     : Math.max(1, Math.min(w / PHONE_W, h / PHONE_H))
 
 export default function App() {
-  const [[cursor, direction], setState] = useState<[number, number]>(() => [cursorFromHash(), 1])
+  const [[cursor, direction], setState] = useState<[number, number]>(() => [cursorFromLocation(), 1])
   const [target, setTarget] = useState<ContactTarget | null>(null)
   const muted = useMuted()
   const vertical = !useMediaQuery(PHONE_QUERY)
@@ -85,8 +88,8 @@ export default function App() {
   // Ссылку на вещь могут открыть, когда сайт уже открыт, — переключаемся на неё
   useEffect(() => {
     const onHash = () => {
-      const next = cursorFromHash()
-      if (slots[next]?.kind === 'product' && `#${slots[next].product.id}` === window.location.hash) {
+      const next = cursorFromLocation()
+      if (slots[next]?.kind === 'product' && slots[next].product.id === idFromLocation()) {
         setState(([cur]) => (slotAt(cur) === slots[next] ? [cur, 1] : [next, 1]))
       }
     }
@@ -106,7 +109,8 @@ export default function App() {
   }, [accent])
 
   useEffect(() => {
-    history.replaceState(null, '', product ? `#${product.id}` : ' ')
+    // В адресной строке — страница вещи: скопировали и отправили, и в Telegram/ВК видна её карточка
+    history.replaceState(null, '', product ? `/${product.id}/` : '/')
   }, [product])
 
   // Соседние вещи (по две в каждую сторону) качаем заранее — при листании они появляются сразу,
