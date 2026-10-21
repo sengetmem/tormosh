@@ -298,7 +298,8 @@ body::after {
   display: flex;
   flex-direction: column;
   width: min(420px, 100vw);
-  padding: 6rem 2rem 2rem;
+  /* Сверху — отступ как у крестика: соцсети стоят вровень с ним */
+  padding: clamp(0.75rem, 2vw, 1.5rem) 2rem 2rem;
   background:
     linear-gradient(160deg, rgb(var(--accent-rgb) / 0.35), transparent 60%),
     var(--ink);
@@ -310,16 +311,6 @@ body::after {
   position: absolute;
   top: clamp(0.75rem, 2vw, 1.5rem);
   right: clamp(1rem, 4vw, 3rem);
-}
-
-.menu__title {
-  margin: 0 0 1.5rem;
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 2.5rem;
-  text-transform: uppercase;
-  transform: skewX(var(--skew));
-  text-shadow: 4px 4px 0 var(--accent);
 }
 
 .menu ul {
@@ -411,7 +402,8 @@ a.menu__item:focus-visible::before {
   text-transform: uppercase;
 }
 
-/* Соцсети внизу меню — маленькие скошенные плашки в стиле кнопок сайта */
+/* Соцсети самым верхом меню — маленькие скошенные плашки в стиле кнопок сайта.
+   Подпись — вровень с крестиком (той же высоты), плашки под ней: на узком экране не залезут под крестик */
 .menu__socials {
   display: flex;
   flex-wrap: wrap;
@@ -421,8 +413,12 @@ a.menu__item:focus-visible::before {
 }
 
 .menu__socials p {
+  display: flex;
+  align-items: center;
   flex-basis: 100%;
-  margin: 0 0 0.2rem;
+  min-height: 3.25rem;
+  padding-right: 3.5rem;
+  margin: 0;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -432,7 +428,7 @@ a.menu__item:focus-visible::before {
 
 .menu__social {
   display: inline-block;
-  padding: 0.55rem 1.1rem;
+  padding: 0.55rem 0.9rem;
   background: var(--gold);
   color: var(--ink);
   font-family: var(--font-display);
@@ -1215,6 +1211,11 @@ a.menu__item:focus-visible::before {
   .burger {
     width: 2.6rem;
     height: 2.6rem;
+  }
+
+  /* Подпись соцсетей в меню — вровень с уменьшенным крестиком */
+  .menu__socials p {
+    min-height: 2.6rem;
   }
 
   .strip--top {

@@ -78,8 +78,7 @@ export function Menu() {
                   <span />
                   <span />
                 </button>
-                <p className="menu__title">Пауза</p>
-                {/* Соцсети — самым верхом, сразу под заголовком */}
+                {/* Соцсети — самым верхом, на одной высоте с крестиком */}
                 <div className="menu__socials">
                   <p>Мы в соцсетях</p>
                   {SOCIALS.filter((s) => s.href).map((s) => (
