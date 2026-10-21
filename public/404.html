@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="only dark" />
+    <meta name="theme-color" content="#000814" />
+    <meta name="robots" content="noindex" />
+    <title>Нет такой страницы — TORMOSH</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Страница для неверных адресов: GitHub Pages сам показывает 404.html вместо своей серой -->
+    <style>
+      @font-face {
+        font-family: 'Unbounded';
+        font-weight: 900;
+        font-display: swap;
+        src: url(/fonts/unbounded-900-latin.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'Rubik';
+        font-weight: 900;
+        font-display: swap;
+        src: url(/fonts/rubik-900-cyrillic-ext.woff2) format('woff2');
+        unicode-range: U+0460-052F;
+      }
+      @font-face {
+        font-family: 'Rubik';
+        font-weight: 900;
+        font-display: swap;
+        src: url(/fonts/rubik-900-cyrillic.woff2) format('woff2');
+        unicode-range: U+0400-045F;
+      }
+      @font-face {
+        font-family: 'Rubik';
+        font-weight: 900;
+        font-display: swap;
+        src: url(/fonts/rubik-900-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+2000-206F;
+      }
+      @font-face {
+        font-family: 'Golos Text';
+        font-weight: 600;
+        font-display: swap;
+        src: url(/fonts/golos-text-600-cyrillic.woff2) format('woff2');
+        unicode-range: U+0400-045F;
+      }
+      @font-face {
+        font-family: 'Golos Text';
+        font-weight: 600;
+        font-display: swap;
+        src: url(/fonts/golos-text-600-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+2000-206F;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      /* Фон как у сайта: цвет Бәхет, смешанный с почти чёрным, и косые полосы */
+      body {
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 24px 16px;
+        overflow: hidden;
+        color: #fff;
+        font-family: 'Golos Text', system-ui, sans-serif;
+        font-weight: 600;
+        background:
+          repeating-linear-gradient(135deg, rgb(255 255 255 / 0.06) 0 34px, transparent 34px 68px),
+          rgb(0 57 166);
+      }
+
+      .card {
+        position: relative;
+        width: min(560px, 100%);
+        padding: 40px 32px 44px 48px;
+        background: #000814;
+        clip-path: polygon(24px 0, 100% 0, 100% 100%, 0 100%);
+        text-align: left;
+      }
+
+      .logo {
+        display: inline-block;
+        font-family: 'Unbounded', 'Arial Black', sans-serif;
+        font-weight: 900;
+        font-size: 26px;
+        letter-spacing: -0.03em;
+        transform: skewX(-10deg);
+        text-shadow: 3px 3px 0 #0057ff;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .code {
+        margin-top: 28px;
+        font-size: 15px;
+        letter-spacing: 0.24em;
+        color: #ffd400;
+      }
+
+      h1 {
+        margin: 6px 0 4px;
+        font-family: 'Rubik', 'Arial Black', sans-serif;
+        font-weight: 900;
+        font-size: clamp(64px, 18vw, 112px);
+        line-height: 1;
+        transform: skewX(-6deg);
+        text-shadow: 6px 6px 0 #ff2a3d;
+      }
+
+      .hint {
+        font-size: 15px;
+        font-style: italic;
+        color: rgb(255 255 255 / 0.6);
+      }
+
+      p {
+        margin-top: 20px;
+        font-size: 18px;
+        line-height: 1.45;
+        color: rgb(255 255 255 / 0.85);
+      }
+
+      /* Жёлтая скошенная кнопка, как «Telegram» и «ВКонтакте» на сайте */
+      .btn {
+        display: inline-block;
+        margin-top: 30px;
+        padding: 16px 34px;
+        background: #ffd400;
+        color: #000814;
+        font-family: 'Rubik', 'Arial Black', sans-serif;
+        font-weight: 900;
+        font-size: 18px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-decoration: none;
+        transform: skewX(-10deg);
+        box-shadow: 6px 6px 0 #0057ff;
+        transition: translate 0.15s, box-shadow 0.15s;
+      }
+
+      .btn:hover,
+      .btn:focus-visible {
+        translate: -2px -2px;
+        box-shadow: 8px 8px 0 #0057ff;
+        outline: none;
+      }
+
+      .btn:active {
+        translate: 3px 3px;
+        box-shadow: 2px 2px 0 #0057ff;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <a class="logo" href="/">TORMOSH</a>
+      <div class="code">ОШИБКА 404</div>
+      <h1>Юҡ!</h1>
+      <div class="hint">по-башкирски — «нет»</div>
+      <p>Такой страницы у нас нет. Может, в адресе опечатка, а может, вещь уже разобрали. Зато остальные на месте.</p>
+      <a class="btn" href="/">К вещам</a>
+    </main>
+  </body>
+</html>
