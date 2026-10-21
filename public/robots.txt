@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: http://tormoshuwu.ru/sitemap.xml
+Sitemap: https://tormoshuwu.ru/sitemap.xml
