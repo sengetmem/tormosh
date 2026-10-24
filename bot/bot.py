@@ -42,8 +42,9 @@ CHANNEL = "https://t.me/Tormosh02"
 PRODUCTS = {
     "bakhet": {"name": "Бәхет", "price": 1800, "sizes": True},
     "seen-this-man": {"name": "Have you seen this man?", "price": 1800, "sizes": True},
-    "spiral": {"name": "Ҡумыҙ", "price": 1800, "sizes": True},
-    "sweater": {"name": "Төлкө", "price": None, "sizes": False},
+    # Пока нет в наличии (на сайте hidden) — вернуть вместе с сайтом:
+    # "spiral": {"name": "Ҡумыҙ", "price": 1800, "sizes": True},
+    # "sweater": {"name": "Төлкө", "price": None, "sizes": False},
 }
 SIZES = ["S", "M"]  # пока шьём только эти два
 # Замеры, см — из таблицы на сайте (src/data/sizes.ts)
