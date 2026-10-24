@@ -28,9 +28,12 @@ export type Product = {
   accent: string
   /** null — цена пока не объявлена */
   price: number | null
+  /** true — вещи пока нет в наличии: на сайте её место занимает закрытый слот «???».
+   *  Чтобы вернуть — убрать эту строку */
+  hidden?: boolean
 }
 
-export const products: Product[] = [
+const catalog: Product[] = [
   {
     id: 'bakhet',
     code: '01',
@@ -66,6 +69,7 @@ export const products: Product[] = [
     image: img('spiral-back'),
     accent: '#7b2dff',
     price: 1800,
+    hidden: true,
   },
   {
     id: 'sweater',
@@ -78,13 +82,19 @@ export const products: Product[] = [
     image: img('sweater-fox'),
     accent: '#00b383',
     price: null,
+    hidden: true,
   },
 ]
+
+/** Вещи, которые сейчас показываем на сайте */
+export const products = catalog.filter((p) => !p.hidden)
 
 /** Слот в меню выбора: настоящий товар или «секретный» — скоро появится */
 export type Slot = { kind: 'product'; product: Product } | { kind: 'locked'; code: string }
 
-const LOCKED_SLOTS = 2
+/** Всего мест в барабане. Сколько вещей не хватает до этого числа — столько закрытых слотов «???» */
+const TOTAL_SLOTS = 6
+const LOCKED_SLOTS = Math.max(2, TOTAL_SLOTS - products.length)
 
 export const slots: Slot[] = [
   ...products.map((product) => ({ kind: 'product' as const, product })),
